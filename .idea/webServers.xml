@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="5d42c904-bcbf-419e-8909-4b5394460693" name="moss@labs.eait.uq.edu.au" url="http://moss.labs.eait.uq.edu.au">
+        <fileTransfer host="moss.labs.eait.uq.edu.au" port="22" rootFolder="/home/students/s4536324" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
