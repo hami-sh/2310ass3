@@ -115,7 +115,7 @@ int check_string(char *card) {
     if (isdigit(card[1]) == 0) {
         if (isxdigit(card[1] == 0)) {
             return show_message(BADDECKFILE);
-        } else if (isalpha(card[1])) {
+        } else if (isalpha(card[1]) && isxdigit(card[1])) {
             if (isupper(card[1])) {
                 return show_message(BADDECKFILE);
             } else {
