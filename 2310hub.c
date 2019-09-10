@@ -6,7 +6,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <ctype.h>
+#include <time.h>
 #include "parse.h"
+
+// global variable for SIGHUP signal.
+bool sighup = false;
 
 /**
  * Function to output an error message and return status.
@@ -35,10 +39,31 @@ int new_game(int argc, char** argv) {
         return parseStatus;
     }
     printf("new game\n");
-    for (int i = 0; i < game.deck.count; i++) {
+    /*for (int i = 0; i < game.deck.count; i++) {
         printf("%c%c\n", game.deck.contents[i].suit, game.deck.contents[i].rank);
+    }*/
+    return show_message(game_loop(&game));
+}
+
+int game_loop(Game *game) {
+    // setup SIGHUP detection
+    struct sigaction sa_sighup;
+    sa_sighup.sa_handler = handle_sighup;
+    sa_sighup.sa_flags = SA_RESTART;
+    sigaction(SIGHUP, &sa_sighup, 0);
+
+    while (true) {
+        while (!sighup) {
+            struct timespec nap;
+            nap.tv_sec = 0;
+            nap.tv_nsec = 5000000000;
+            nanosleep(&nap, 0);
+        }
+        //todo kill children
+        return GOTSIGHUP;
     }
-    return show_message(OK);
+
+    return OK;
 }
 
 int parse(int argc, char** argv, Game *game) {
@@ -64,11 +89,32 @@ int parse(int argc, char** argv, Game *game) {
         return show_message(THRESHOLD);
     }
 
+    game->playerCount = argc - 3;
     int deckStatus = handler_deck(argv[1], game);
     if (deckStatus != 0) {
         return deckStatus;
     }
 
+    int playerStatus = player_arg_checker(argc, argv, game);
+    if (playerStatus != 0) {
+        return playerStatus;
+    }
+
+    return OK;
+}
+
+int player_arg_checker(int argc, char** argv, Game *game) {
+    game->types = (char *) malloc((argc - 3) * sizeof(char));
+    for (int i = 3; i < argc; i++) {
+        if (strcmp(argv[i], "./2310alice") == 0 ) {
+            game->types[i-3] = 'a';
+        } else if (strcmp(argv[i], "./2310bob") == 0) {
+            game->types[i-3] = 'b';
+        } else {
+            return show_message(PLAYERSTART);
+        }
+    }
+    game->types[game->playerCount] = '\0';
     return OK;
 }
 
@@ -79,6 +125,11 @@ int handler_deck(char* deckName, Game *game) {
     }
     int result = load_deck(f, &game->deck);
     fclose(f);
+
+    // check deck size is sufficient.
+    if (game->deck.count < game->playerCount) {
+        return show_message(SHORTDECK);
+    }
     return result;
 }
 
@@ -133,7 +184,6 @@ int load_deck(FILE* input, Deck* deck) {
     while (1) {
         char *card = malloc(sizeof(char) * 4);
         // read each line of the deck file
-        printf("%d\n", position);
         if (fscanf(input, "%s", card) != 1) {
             break;
         }
@@ -174,6 +224,10 @@ int load_deck(FILE* input, Deck* deck) {
     } else {
         return show_message(BADDECKFILE);
     }
+}
+
+void handle_sighup(int s) {
+    sighup = true;
 }
 
 int main(int argc, char** argv) {

@@ -123,6 +123,60 @@ depend:
 	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/build
 .PHONY : 2310hub/fast
 
+2310alice.o: 2310alice.c.o
+
+.PHONY : 2310alice.o
+
+# target to build an object file
+2310alice.c.o:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.o
+.PHONY : 2310alice.c.o
+
+2310alice.i: 2310alice.c.i
+
+.PHONY : 2310alice.i
+
+# target to preprocess a source file
+2310alice.c.i:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.i
+.PHONY : 2310alice.c.i
+
+2310alice.s: 2310alice.c.s
+
+.PHONY : 2310alice.s
+
+# target to generate assembly for a file
+2310alice.c.s:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.s
+.PHONY : 2310alice.c.s
+
+2310bob.o: 2310bob.c.o
+
+.PHONY : 2310bob.o
+
+# target to build an object file
+2310bob.c.o:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.o
+.PHONY : 2310bob.c.o
+
+2310bob.i: 2310bob.c.i
+
+.PHONY : 2310bob.i
+
+# target to preprocess a source file
+2310bob.c.i:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.i
+.PHONY : 2310bob.c.i
+
+2310bob.s: 2310bob.c.s
+
+.PHONY : 2310bob.s
+
+# target to generate assembly for a file
+2310bob.c.s:
+	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.s
+.PHONY : 2310bob.c.s
+
 2310hub.o: 2310hub.c.o
 
 .PHONY : 2310hub.o
@@ -186,6 +240,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... 2310hub"
+	@echo "... 2310alice.o"
+	@echo "... 2310alice.i"
+	@echo "... 2310alice.s"
+	@echo "... 2310bob.o"
+	@echo "... 2310bob.i"
+	@echo "... 2310bob.s"
 	@echo "... 2310hub.o"
 	@echo "... 2310hub.i"
 	@echo "... 2310hub.s"

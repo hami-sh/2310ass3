@@ -4,6 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
+  "/Users/hamishbultitude/Documents/GitHub/2310ass3/2310alice.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/2310alice.c.o"
+  "/Users/hamishbultitude/Documents/GitHub/2310ass3/2310bob.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/2310bob.c.o"
   "/Users/hamishbultitude/Documents/GitHub/2310ass3/2310hub.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/2310hub.c.o"
   "/Users/hamishbultitude/Documents/GitHub/2310ass3/parse.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/parse.c.o"
   )
