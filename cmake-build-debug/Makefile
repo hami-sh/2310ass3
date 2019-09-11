@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named 2310hub
+# Target rules for targets named 2310hub.c
 
 # Build rule for target.
-2310hub: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 2310hub
-.PHONY : 2310hub
+2310hub.c: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 2310hub.c
+.PHONY : 2310hub.c
 
 # fast build rule for target.
-2310hub/fast:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/build
-.PHONY : 2310hub/fast
+2310hub.c/fast:
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/build
+.PHONY : 2310hub.c/fast
 
 2310alice.o: 2310alice.c.o
 
@@ -129,7 +129,7 @@ depend:
 
 # target to build an object file
 2310alice.c.o:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.o
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310alice.c.o
 .PHONY : 2310alice.c.o
 
 2310alice.i: 2310alice.c.i
@@ -138,7 +138,7 @@ depend:
 
 # target to preprocess a source file
 2310alice.c.i:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.i
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310alice.c.i
 .PHONY : 2310alice.c.i
 
 2310alice.s: 2310alice.c.s
@@ -147,7 +147,7 @@ depend:
 
 # target to generate assembly for a file
 2310alice.c.s:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310alice.c.s
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310alice.c.s
 .PHONY : 2310alice.c.s
 
 2310bob.o: 2310bob.c.o
@@ -156,7 +156,7 @@ depend:
 
 # target to build an object file
 2310bob.c.o:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.o
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310bob.c.o
 .PHONY : 2310bob.c.o
 
 2310bob.i: 2310bob.c.i
@@ -165,7 +165,7 @@ depend:
 
 # target to preprocess a source file
 2310bob.c.i:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.i
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310bob.c.i
 .PHONY : 2310bob.c.i
 
 2310bob.s: 2310bob.c.s
@@ -174,62 +174,8 @@ depend:
 
 # target to generate assembly for a file
 2310bob.c.s:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310bob.c.s
+	$(MAKE) -f CMakeFiles/2310hub.c.dir/build.make CMakeFiles/2310hub.c.dir/2310bob.c.s
 .PHONY : 2310bob.c.s
-
-2310hub.o: 2310hub.c.o
-
-.PHONY : 2310hub.o
-
-# target to build an object file
-2310hub.c.o:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310hub.c.o
-.PHONY : 2310hub.c.o
-
-2310hub.i: 2310hub.c.i
-
-.PHONY : 2310hub.i
-
-# target to preprocess a source file
-2310hub.c.i:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310hub.c.i
-.PHONY : 2310hub.c.i
-
-2310hub.s: 2310hub.c.s
-
-.PHONY : 2310hub.s
-
-# target to generate assembly for a file
-2310hub.c.s:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/2310hub.c.s
-.PHONY : 2310hub.c.s
-
-parse.o: parse.c.o
-
-.PHONY : parse.o
-
-# target to build an object file
-parse.c.o:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/parse.c.o
-.PHONY : parse.c.o
-
-parse.i: parse.c.i
-
-.PHONY : parse.i
-
-# target to preprocess a source file
-parse.c.i:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/parse.c.i
-.PHONY : parse.c.i
-
-parse.s: parse.c.s
-
-.PHONY : parse.s
-
-# target to generate assembly for a file
-parse.c.s:
-	$(MAKE) -f CMakeFiles/2310hub.dir/build.make CMakeFiles/2310hub.dir/parse.c.s
-.PHONY : parse.c.s
 
 # Help Target
 help:
@@ -239,19 +185,13 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... 2310hub"
+	@echo "... 2310hub.c"
 	@echo "... 2310alice.o"
 	@echo "... 2310alice.i"
 	@echo "... 2310alice.s"
 	@echo "... 2310bob.o"
 	@echo "... 2310bob.i"
 	@echo "... 2310bob.s"
-	@echo "... 2310hub.o"
-	@echo "... 2310hub.i"
-	@echo "... 2310hub.s"
-	@echo "... parse.o"
-	@echo "... parse.i"
-	@echo "... parse.s"
 .PHONY : help
 
 

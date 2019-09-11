@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "/Users/hamishbultitude/Documents/GitHub/2310ass3/2310bob.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/2310bob.c.o"
   "/Users/hamishbultitude/Documents/GitHub/2310ass3/2310hub.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/2310hub.c.o"
   "/Users/hamishbultitude/Documents/GitHub/2310ass3/parse.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/parse.c.o"
+  "/Users/hamishbultitude/Documents/GitHub/2310ass3/shared.c" "/Users/hamishbultitude/Documents/GitHub/2310ass3/cmake-build-debug/CMakeFiles/2310hub.dir/shared.c.o"
   )
 set(CMAKE_C_COMPILER_ID "AppleClang")
 

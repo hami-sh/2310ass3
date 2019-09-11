@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <ctype.h>
 #include <time.h>
+#include "2310hub.h"
 #include "parse.h"
 
 // global variable for SIGHUP signal.
@@ -95,15 +96,15 @@ int parse(int argc, char** argv, Game *game) {
         return deckStatus;
     }
 
-    int playerStatus = player_arg_checker(argc, argv, game);
+    /*int playerStatus = player_arg_checker(argc, argv, game);
     if (playerStatus != 0) {
         return playerStatus;
-    }
+    }*/
 
     return OK;
 }
 
-int player_arg_checker(int argc, char** argv, Game *game) {
+/*int player_arg_checker(int argc, char** argv, Game *game) {
     game->types = (char *) malloc((argc - 3) * sizeof(char));
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "./2310alice") == 0 ) {
@@ -116,7 +117,7 @@ int player_arg_checker(int argc, char** argv, Game *game) {
     }
     game->types[game->playerCount] = '\0';
     return OK;
-}
+}*/
 
 int handler_deck(char* deckName, Game *game) {
     FILE* f = fopen(deckName, "r");
