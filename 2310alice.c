@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <time.h>
 #include "shared.h"
+#include <ctype.h>
 
 #define LINESIZE 80
 
@@ -25,10 +26,23 @@ PlayerStatus show_player_message(PlayerStatus s) {
     return s;
 }
 
+int check_repeating_cards(Card arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = i + 1; j < size; j++) {
+            if (arr[i].rank == arr[j].rank) {
+                if (arr[i].suit == arr[j].suit) {
+                    return show_player_message(MSGERR);
+                }
+            }
+        }
+    }
+    return DONE;
+}
+
 int decode_hand(char* input, playerGame *game) {
     printf("hand\n");
     input += 4;
-
+    input[strlen(input) - 1] = '\0'; // remove extra new line char.
     int inputSize = strlen(input);
     char delim[] = ",";
     char* arrow = strtok(input, delim);
@@ -44,14 +58,33 @@ int decode_hand(char* input, playerGame *game) {
             }
             sscanf(arrow, "%d", &game->handSize);
         } else if (i > 0) {
-            // todo card stuff
+            if (strlen(arrow) > 2) {
+                return show_player_message(MSGERR);
+            } else if (regex_card(arrow[0]) && (isdigit(arrow[1])
+                || isxdigit(arrow[1]))) {
+                    Card card;
+                    card.suit = arrow[0];
+                    card.rank = arrow[1];
+                    game->hand[i-1] = card;
+            } else {
+                return show_player_message(MSGERR);
+            }
+
         }
-        printf("'%s'\n", arrow);
         arrow = strtok(NULL, delim);
         i++;
     }
-    //game->handSize = input[0];
-    printf("hs: %d", game->handSize);
+
+    if (i-1 != game->handSize) {
+        return show_player_message(MSGERR);
+    }
+
+    int repeatStatus = check_repeating_cards(game->hand, game->handSize);
+    if (repeatStatus != 0) {
+        return repeatStatus;
+    }
+
+    printf("yeehaw\n");
     return DONE;
 }
 
@@ -88,6 +121,8 @@ int process_input(char* input, playerGame *game) {
         decode_play(input);
     } else if (regex_gameover(input)) {
         gameover(input);
+    } else {
+        show_player_message(MSGERR);
     }
     return 0;
 }

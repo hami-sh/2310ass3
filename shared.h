@@ -1,6 +1,7 @@
 #ifndef SHARED_H
 #define SHARED_H
-char regex_hand(char* str) {
+
+char regex_hand(char *str) {
     return
             str[0] == 'H' &&
             str[1] == 'A' &&
@@ -8,7 +9,7 @@ char regex_hand(char* str) {
             str[3] == 'D';
 }
 
-char regex_newround(char* str) {
+char regex_newround(char *str) {
     return
             str[0] == 'N' &&
             str[1] == 'E' &&
@@ -20,7 +21,7 @@ char regex_newround(char* str) {
             str[7] == 'D';
 }
 
-char regex_played(char* str) {
+char regex_played(char *str) {
     return
             str[0] == 'P' &&
             str[1] == 'L' &&
@@ -30,7 +31,7 @@ char regex_played(char* str) {
             str[5] == 'D';
 }
 
-char regex_gameover(char* str) {
+char regex_gameover(char *str) {
     return
             str[0] == 'G' &&
             str[1] == 'A' &&
@@ -42,13 +43,22 @@ char regex_gameover(char* str) {
             str[7] == 'R';
 }
 
-char regex_play(char* str) {
+char regex_play(char *str) {
     return
             str[0] == 'P' &&
             str[1] == 'L' &&
             str[2] == 'A' &&
             str[3] == 'Y';
 }
+
+char regex_card(char c) {
+    return
+            c == 'S' ||
+            c == 'C' ||
+            c == 'D' ||
+            c == 'H';
+}
+
 
 // enum for exit status
 typedef enum {
@@ -72,7 +82,7 @@ typedef struct {
 typedef struct {
     unsigned int count;
     unsigned int used;
-    Card* contents;
+    Card *contents;
 } Deck;
 
 // struct for player hand
@@ -96,6 +106,8 @@ typedef struct {
     int playerCount;
     int leadPlayer;
 } playerGame;
+
+
 
 #endif
 
