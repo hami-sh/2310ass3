@@ -1,5 +1,7 @@
 #include "shared.h"
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 
 #ifndef HUB_H
 #define HUB_H
@@ -14,6 +16,7 @@ typedef struct {
     int threshold;
     int playerCount;
     int leadPlayer;
+    int numCardsToDeal;
 } Game;
 
 typedef enum {
@@ -28,6 +31,11 @@ typedef enum {
     PLAYERCHOICE = 8,
     GOTSIGHUP = 9
 } Status;
+
+//typedef struct {
+//    int in;
+//    int out;
+//} Pipe;
 
 int handler_deck(char* deckName, Game *game);
 

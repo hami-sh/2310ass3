@@ -1,3 +1,4 @@
+#include <stdio.h>
 #ifndef SHARED_H
 #define SHARED_H
 
@@ -78,6 +79,7 @@ typedef struct {
     char suit;
 } Card;
 
+
 // struct for deck
 typedef struct {
     unsigned int count;
@@ -85,10 +87,14 @@ typedef struct {
     Card *contents;
 } Deck;
 
-// struct for player hand
+// struct for player
 typedef struct {
     unsigned int size;
     Card cards[60]; //max number of cards for one player (15 * 4 suits)
+    int* pipeIn;
+    int* pipeOut;
+    FILE* fileIn;
+    FILE* fileOut;
 } Player;
 
 // struct for particular play of a card

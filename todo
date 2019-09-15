@@ -2,3 +2,6 @@ todo: check duplicates in load deck & when sending hand & when receiving hand
 
 ./2310alice 2 0 3 1
 @                return show_player_message(MSGERR);
+
+todo: account for forking error?
+fixme: how to get what player type is??????

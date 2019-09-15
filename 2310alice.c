@@ -241,6 +241,7 @@ int parse_player(int argc, char** argv, playerGame *game) {
 
 
 int main(int argc, char** argv) {
+    printf("alice\n");
     if (argc == 5) {
         fprintf(stdout, "@");
         fflush(stdout);

@@ -7,6 +7,9 @@
 #include <sys/wait.h>
 #include <ctype.h>
 #include <time.h>
+#include <math.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 #include "2310hub.h"
 #include "parse.h"
 
@@ -33,6 +36,64 @@ Status show_message(Status s) {
     return s;
 }
 
+int numberDigits (int i) {
+    if (i == 0) {
+        return 1;
+    }
+    int down = abs(i);
+    int log = log10(down);
+    int fl = floor(log);
+    return fl + 1;
+}
+
+int create_players(Game *game, char** argv) {
+    game->players = malloc(game->playerCount * sizeof(Player));
+    game->numCardsToDeal = floor((game->deck.count / game->playerCount));
+
+    for (int i = 0; i < game->playerCount; i++) {
+        printf("%d %s\n", i, argv[i + 3]);
+        game->players[i].pipeIn = malloc(sizeof(int) * 2);
+        game->players[i].pipeOut = malloc(sizeof(int) * 2);
+        pipe(game->players[i].pipeIn);
+        pipe(game->players[i].pipeOut);
+        if (!fork()) {
+            // child
+            close(game->players[i].pipeIn[1]); // for child - close write end.
+            close(game->players[i].pipeOut[0]); // for child - close read end.
+            dup2(game->players[i].pipeIn[0], STDIN_FILENO); //send pipeA stuff to stdin of child.
+            dup2(game->players[i].pipeOut[1], STDOUT_FILENO); //send stdout child to write of pipeB
+
+            char* args[6];
+            args[0] = argv[i + 3];
+            args[1] = malloc((numberDigits(game->playerCount) + 1) * sizeof(int));
+            args[2] = malloc((numberDigits(i) + 1) * sizeof(int));
+            args[3] = malloc((numberDigits(game->threshold) + 1) * sizeof(int));
+            args[4] = malloc((numberDigits(game->numCardsToDeal) + 1) * sizeof(int));
+            sprintf(args[1], "%d", game->playerCount);
+            sprintf(args[2], "%d", i);
+            sprintf(args[3], "%d", game->threshold);
+            sprintf(args[4], "%d", game->numCardsToDeal);
+            args[5] = 0;
+            execv(argv[i + 3], args);
+            exit(5);
+            return show_message(PLAYERSTART);
+
+        } else {
+            // parent
+            game->players[i].size = game->numCardsToDeal;
+            close(game->players[i].pipeIn[0]);
+            close(game->players[i].pipeOut[1]);
+        }
+    }
+
+    for (int i = 0; i < game->playerCount; i++) {
+        game->players[0].fileIn = fdopen(*game->players[0].pipeIn, "w");
+        game->players[0].fileOut = fdopen(*game->players[0].pipeOut, "r");
+    }
+
+    return OK;
+}
+
 int new_game(int argc, char** argv) {
     Game game;
     int parseStatus = parse(argc, argv, &game);
@@ -40,9 +101,22 @@ int new_game(int argc, char** argv) {
         return parseStatus;
     }
     printf("new game\n");
+
     /*for (int i = 0; i < game.deck.count; i++) {
         printf("%c%c\n", game.deck.contents[i].suit, game.deck.contents[i].rank);
     }*/
+
+    create_players(&game, argv);
+    for (int i = 0; i < game.playerCount; i++) {
+        printf("%d in:%d out:%d\n", i, game.players[i].pipeIn[1], game.players[i].pipeOut[0]);
+    }
+    char buf[] = "HELLO WORLD!";
+    write(game.players[0].pipeIn[1], buf, sizeof(buf));
+
+    char c;
+    c = fgetc(game.players[0].fileOut);
+    printf(">%c\n", c);
+//    printf("%p\n", game.players[0].fileOut);
     return show_message(game_loop(&game));
 }
 
@@ -144,7 +218,10 @@ int check_string(char *card) {
         return show_message(BADDECKFILE);
     } else {
         //ensure letter is S, C, D, H
-        switch (card[0]) {
+        if (!regex_card(card[0])) {
+            return show_message(BADDECKFILE);
+        }
+        /*switch (card[0]) {
             case 'S':
                 break;
             case 'C':
@@ -155,7 +232,7 @@ int check_string(char *card) {
                 break;
             default:
                 return show_message(BADDECKFILE);
-        }
+        }*/
     }
 
     //ensure letter is captial
