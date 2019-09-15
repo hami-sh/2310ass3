@@ -111,7 +111,13 @@ typedef struct {
     int threshold;
     int playerCount;
     int leadPlayer;
-} playerGame;
+    char* next;
+    int expected;
+} PlayerGame;
+
+int check_expected(PlayerGame *game, char* got, int currentPlayer);
+void set_expected(PlayerGame *game, char* set);
+void init_expected(PlayerGame *game);
 
 
 

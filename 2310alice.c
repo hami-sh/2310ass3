@@ -39,8 +39,7 @@ int check_repeating_cards(Card arr[], int size) {
     return DONE;
 }
 
-int decode_hand(char* input, playerGame *game) {
-    printf("hand\n");
+int decode_hand(char* input, PlayerGame *game) {
     input += 4;
     input[strlen(input) - 1] = '\0'; // remove extra new line char.
     int inputSize = strlen(input);
@@ -83,14 +82,13 @@ int decode_hand(char* input, playerGame *game) {
     if (repeatStatus != 0) {
         return repeatStatus;
     }
-
-    printf("yeehaw\n");
     return DONE;
 }
 
 int decode_newround(char *input) {
     printf("newround\n");
     input += 8;
+
     return DONE;
 }
 
@@ -110,15 +108,47 @@ int decode_play(char *input) {
     return DONE;
 }
 
-int process_input(char* input, playerGame *game) {
+int get_current(char* input) {
+    char* dest = malloc(sizeof(char) * strlen(input));
+    strncpy(dest, input, strlen(input));
+    dest += 6;
+    for (int i = 0; i < strlen(dest) - 1; i++) {
+        if (!isdigit(dest[i])) {
+            return show_player_message(MSGERR);
+        }
+    }
+    return atoi(dest);
+}
+
+int process_input(char* input, PlayerGame *game) {
+    char dest[500];
     if (regex_hand(input)) {
+        strncpy(dest, input, 4);
+        dest[4] = 0;
+        int msgCheck = check_expected(game, dest, game->current);
+        if (msgCheck != 0) {
+            return msgCheck;
+        }
         decode_hand(input, game);
     } else if (regex_newround(input)) {
+        game->expected = 0;
+        strncpy(dest, input, 8);
+        dest[8] = 0;
+        int msgCheck = check_expected(game, dest, game->current);
+        if (msgCheck != 0) {
+            return msgCheck;
+        }
         decode_newround(input);
     } else if (regex_played(input)) {
+        //todo get current from string
+        game->current = get_current(input);
+        strncpy(dest, input, 6);
+        dest[6] = 0;
+        int msgCheck = check_expected(game, dest, game->current);
+        if (msgCheck != 0) {
+            return msgCheck;
+        }
         decode_played(input);
-    } else if (regex_play(input)) {
-        decode_play(input);
     } else if (regex_gameover(input)) {
         gameover(input);
     } else {
@@ -127,10 +157,10 @@ int process_input(char* input, playerGame *game) {
     return 0;
 }
 
-int cont_read_stdin(playerGame *game) {
+int cont_read_stdin(PlayerGame *game) {
     char input[LINESIZE];
     fgets(input, BUFSIZ, stdin);
-    while (strcmp(input, "GAMEOVER\n") != 0) { //fixme check \n?
+    while ( strcmp(input, "GAMEOVER\n") != 0 ) { //fixme check \n?
         int processed = process_input(input, game);
         if (processed != 0) {
             return processed;
@@ -140,7 +170,7 @@ int cont_read_stdin(playerGame *game) {
     return DONE;
 }
 
-int further_arg_checks(int argc, char** argv, playerGame *game) {
+int further_arg_checks(int argc, char** argv, PlayerGame *game) {
     // check threshold
     char* thresholdArg = malloc(sizeof(char) * strlen(argv[3]));
     for (int s = 0; s < strlen(argv[3]); s++) {
@@ -184,7 +214,7 @@ int further_arg_checks(int argc, char** argv, playerGame *game) {
     return DONE;
 }
 
-int parse_player(int argc, char** argv, playerGame *game) {
+int parse_player(int argc, char** argv, PlayerGame *game) {
     //     0           1         2        3        4
     // 2310alice playerCount playerID threshold handSize
 
@@ -236,6 +266,67 @@ int parse_player(int argc, char** argv, playerGame *game) {
     return DONE;
 
 }
+
+void init_expected(PlayerGame *game) {
+    game->next = "start";
+}
+
+void set_expected(PlayerGame *game, char* set) {
+    game->next = set;
+}
+
+int check_expected(PlayerGame *game, char* got, int currentPlayer) {
+    printf("before: %s got:%s\n", game->next, got);
+    if (strcmp(game->next, "start") == 0) {
+        // we expect HAND - we want to start the game
+        if (strcmp(got, "HAND") != 0) {
+            return show_player_message(MSGERR);
+        }
+        // expected next to be newround
+        set_expected(game, "HAND");
+    } else if (strcmp(game->next, "HAND") == 0) {
+        if (strcmp(got, "NEWROUND") != 0) {
+            return show_player_message(MSGERR);
+        }
+        set_expected(game, "NEWROUND");
+    } else if (strcmp(game->next, "NEWROUND") == 0) {
+        // start of round
+        if (currentPlayer != 0 || game->expected != 0) {
+            return show_player_message(MSGERR);
+        }
+        if (strcmp(got, "PLAYED") != 0) {
+            return show_player_message(MSGERR);
+        }
+        // expect next to be another move
+        set_expected(game, "PLAYED");
+        game->expected++;
+    } else if (strcmp(got, "PLAYED") == 0) {
+        // mid round
+        if (currentPlayer != game->expected) {
+            return show_player_message(MSGERR);
+        }
+        if (strcmp(got, "PLAYED") != 0) {
+            return show_player_message(MSGERR);
+        }
+        if (game->playerCount - 1 == currentPlayer) {
+            if (game->expected == currentPlayer) {
+                // all players have moved, go to new round.
+                set_expected(game, "NEWROUND");
+            } else {
+                // player has been missed
+                return show_player_message(MSGERR);
+            }
+
+        }
+        // expected next to be another move
+        game->expected++;
+        set_expected(game, "PLAYED");
+    }
+    return DONE;
+}
+
+
+
 /* end shared */
 
 
@@ -244,7 +335,8 @@ int main(int argc, char** argv) {
     if (argc == 5) {
         fprintf(stdout, "@");
         fflush(stdout);
-        playerGame game;
+        PlayerGame game;
+        init_expected(&game);
         int parseStatus = parse_player(argc, argv, &game);
         if (parseStatus != 0) {
             return parseStatus;
