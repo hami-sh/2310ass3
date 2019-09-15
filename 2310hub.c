@@ -51,11 +51,11 @@ int create_players(Game *game, char** argv) {
     game->numCardsToDeal = floor((game->deck.count / game->playerCount));
 
     for (int i = 0; i < game->playerCount; i++) {
-        printf("%d %s\n", i, argv[i + 3]);
         game->players[i].pipeIn = malloc(sizeof(int) * 2);
         game->players[i].pipeOut = malloc(sizeof(int) * 2);
-        pipe(game->players[i].pipeIn);
-        pipe(game->players[i].pipeOut);
+        printf("%d\n", pipe(game->players[i].pipeIn));
+        printf("%d\n", pipe(game->players[i].pipeOut));
+        printf("%d in:%d out:%d\n", i, game->players[i].pipeIn[0], game->players[i].pipeIn[1]);
         if (!fork()) {
             // child
             close(game->players[i].pipeIn[1]); // for child - close write end.
@@ -86,12 +86,29 @@ int create_players(Game *game, char** argv) {
         }
     }
 
-    for (int i = 0; i < game->playerCount; i++) {
-        game->players[0].fileIn = fdopen(*game->players[0].pipeIn, "w");
-        game->players[0].fileOut = fdopen(*game->players[0].pipeOut, "r");
-    }
+//    for (int i = 0; i < game->playerCount; i++) {
+//        game->players[i].fileIn = fdopen(*game->players[i].pipeIn, "w");
+//        game->players[i].fileOut = fdopen(*game->players[i].pipeOut, "r");
+//    }
+
 
     return OK;
+}
+
+/**
+ * Function to go through each player and read to check if we get "@"
+ * @param game - game struct
+ * @return 0 if ok, 5 if player cannot be found.
+ */
+int check_players(Game *game) {
+    for (int i = 0; i < game->playerCount; i++) {
+        char c = fgetc(game->players[i].fileOut);
+        printf("%d %c\n", i, c);
+        if (c != '@') {
+            return show_message(PLAYERSTART);
+        }
+    }
+    return show_message(OK);
 }
 
 int new_game(int argc, char** argv) {
@@ -102,21 +119,26 @@ int new_game(int argc, char** argv) {
     }
     printf("new game\n");
 
-    /*for (int i = 0; i < game.deck.count; i++) {
-        printf("%c%c\n", game.deck.contents[i].suit, game.deck.contents[i].rank);
-    }*/
-
     create_players(&game, argv);
+//    char buf[] = "HELLO WORLD!";
+//    write(game.players[0].pipeIn[1], buf, sizeof(buf));
+
+//    game.players[0].fileIn = fdopen(*game.players[0].pipeIn, "w");
+//    game.players[0].fileOut = fdopen(*game.players[0].pipeOut, "r");
+
     for (int i = 0; i < game.playerCount; i++) {
         printf("%d in:%d out:%d\n", i, game.players[i].pipeIn[1], game.players[i].pipeOut[0]);
+//        printf("%d pipe :%d %d\n", i, game.players[i].pipeIn[0], game.players[i].pipeIn[1]);
+        game.players[i].fileIn = fdopen(*game.players[i].pipeIn, "w");
+        game.players[i].fileOut = fdopen(*game.players[i].pipeOut, "r");
+        printf("%d in :%p\n", i, game.players[i].fileIn);
+        printf("%d out :%p\n", i, game.players[i].fileOut);
     }
-    char buf[] = "HELLO WORLD!";
-    write(game.players[0].pipeIn[1], buf, sizeof(buf));
+    int playerStatus = check_players(&game);
+    if (playerStatus != 0) {
+        return playerStatus;
+    }
 
-    char c;
-    c = fgetc(game.players[0].fileOut);
-    printf(">%c\n", c);
-//    printf("%p\n", game.players[0].fileOut);
     return show_message(game_loop(&game));
 }
 
