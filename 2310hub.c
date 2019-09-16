@@ -53,9 +53,10 @@ int create_players(Game *game, char** argv) {
     for (int i = 0; i < game->playerCount; i++) {
         game->players[i].pipeIn = malloc(sizeof(int) * 2);
         game->players[i].pipeOut = malloc(sizeof(int) * 2);
-        printf("%d\n", pipe(game->players[i].pipeIn));
-        printf("%d\n", pipe(game->players[i].pipeOut));
-        printf("%d in:%d out:%d\n", i, game->players[i].pipeIn[0], game->players[i].pipeIn[1]);
+        pipe(game->players[i].pipeIn);
+        pipe(game->players[i].pipeOut);
+//        printf(">>IN%d in:%d out:%d\n", i, game->players[i].pipeIn[0], game->players[i].pipeIn[1]);
+//        printf(">>OUT%d in:%d out:%d\n", i, game->players[i].pipeOut[0], game->players[i].pipeOut[1]);
         if (!fork()) {
             // child
             close(game->players[i].pipeIn[1]); // for child - close write end.
@@ -86,10 +87,10 @@ int create_players(Game *game, char** argv) {
         }
     }
 
-//    for (int i = 0; i < game->playerCount; i++) {
-//        game->players[i].fileIn = fdopen(*game->players[i].pipeIn, "w");
-//        game->players[i].fileOut = fdopen(*game->players[i].pipeOut, "r");
-//    }
+    for (int i = 0; i < game->playerCount; i++) {
+        game->players[i].fileIn = fdopen(game->players[i].pipeIn[1], "w");
+        game->players[i].fileOut = fdopen(game->players[i].pipeOut[0], "r");
+    }
 
 
     return OK;
@@ -120,24 +121,15 @@ int new_game(int argc, char** argv) {
     printf("new game\n");
 
     create_players(&game, argv);
-//    char buf[] = "HELLO WORLD!";
-//    write(game.players[0].pipeIn[1], buf, sizeof(buf));
 
-//    game.players[0].fileIn = fdopen(*game.players[0].pipeIn, "w");
-//    game.players[0].fileOut = fdopen(*game.players[0].pipeOut, "r");
+    fprintf(game.players[0].fileIn, "HAND3,C1,C2,C3\n");
+    fflush(game.players[0].fileIn);
 
-    for (int i = 0; i < game.playerCount; i++) {
-        printf("%d in:%d out:%d\n", i, game.players[i].pipeIn[1], game.players[i].pipeOut[0]);
-//        printf("%d pipe :%d %d\n", i, game.players[i].pipeIn[0], game.players[i].pipeIn[1]);
-        game.players[i].fileIn = fdopen(*game.players[i].pipeIn, "w");
-        game.players[i].fileOut = fdopen(*game.players[i].pipeOut, "r");
-        printf("%d in :%p\n", i, game.players[i].fileIn);
-        printf("%d out :%p\n", i, game.players[i].fileOut);
-    }
     int playerStatus = check_players(&game);
     if (playerStatus != 0) {
         return playerStatus;
     }
+
 
     return show_message(game_loop(&game));
 }
@@ -243,18 +235,6 @@ int check_string(char *card) {
         if (!regex_card(card[0])) {
             return show_message(BADDECKFILE);
         }
-        /*switch (card[0]) {
-            case 'S':
-                break;
-            case 'C':
-                break;
-            case 'D':
-                break;
-            case 'H':
-                break;
-            default:
-                return show_message(BADDECKFILE);
-        }*/
     }
 
     //ensure letter is captial
