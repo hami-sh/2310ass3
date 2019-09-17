@@ -61,13 +61,17 @@ typedef struct {
 typedef struct {
     Card hand[60];
     int handSize;
-    unsigned int current; // will be 0 - playerNumber
+    unsigned int playerMove; // will be 0 - playerNumber
     int myID;
     int threshold;
     int playerCount;
     int leadPlayer;
-    char* next;
+    char* current;
     int expected;
+    int round;
+    int* order;
+    int orderPos;
+    Card* cardsPlayed;
 } PlayerGame;
 
 int check_expected(PlayerGame *game, char* got, int currentPlayer);
