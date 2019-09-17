@@ -90,17 +90,22 @@ int decode_hand(char* input, PlayerGame *game) {
 }
 
 int decode_newround(char *input, PlayerGame *game) {
-    printf("newround\n");
+    game->orderPos = 0;
     input += 8;
     input[strlen(input) - 1] = '\0';
     // get lead player
     char* leadStr = malloc(strlen(input) * sizeof(char));
     strncpy(leadStr, input, strlen(input));
-    for (int i = 0; i < strlen(leadStr); i++) {
+    int i;
+    for (i = 0; i < strlen(leadStr); i++) {
         if (!isdigit(leadStr[i])) {
             return show_player_message(MSGERR);
         }
     }
+    if (i == 0) {
+        return show_player_message(MSGERR);
+    }
+
     game->leadPlayer = atoi(leadStr);
     return DONE;
 }
@@ -118,15 +123,16 @@ int decode_played(char *input, PlayerGame *game) {
         i++;
     }
     char* playedID = malloc(i * sizeof(char));
+    strncpy(playedID, input, i);
     int justPlayed = atoi(playedID);
 
+    //printf("-<<%d>><%d>><<%d>>-\n", justPlayed, game->order[game->playerCount - 1], game->playerCount-1);
     if (justPlayed != game->order[game->orderPos]) {
-        printf("-<<%d>>--<<%d>>-\n", justPlayed, game->order[game->orderPos]);
         return show_player_message(MSGERR);
     } else if (justPlayed == (game->playerCount - 1)) {
+        //printf("RESET{}\n");
         game->orderPos = 0;
-    } else if (justPlayed == (game->order[game->playerCount - 1])) {
-        game->orderPos = 0;
+        set_expected(game, "HAND");
     } else {
         game->orderPos++;
     }
@@ -135,7 +141,19 @@ int decode_played(char *input, PlayerGame *game) {
             sizeof(Card));
 
     input += i;
-    printf("--(%s)--\n", input);
+    input += 1;
+    if (validate_card(input[0]) && (isdigit(input[1]) ||
+        (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
+        Card newCard;
+        newCard.suit = input[0];
+        newCard.rank = input[1];
+        game->cardsPlayed[game->cardPos++] = newCard;
+    } else {
+        return show_player_message(MSGERR);
+    }
+    if (strlen(input) != 2) {
+        return show_player_message(MSGERR);
+    }
     return DONE;
 }
 
@@ -190,7 +208,8 @@ int process_input(char* input, PlayerGame *game) {
         }
         decode_played(input, game);
     } else if (validate_gameover(input)) {
-        gameover(input);
+            gameover(input);
+
     } else {
         show_player_message(MSGERR);
     }
@@ -201,6 +220,13 @@ int cont_read_stdin(PlayerGame *game) {
     char input[LINESIZE];
     fgets(input, BUFSIZ, stdin);
     while (strcmp(input, "GAMEOVER\n") != 0) { //fixme check \n?
+        //TODO DEBUG REMOVE;
+        if (validate_play(input)) {
+            game->orderPos += 1;
+            printf("X-<<%d>>-%d\n", game->order[game->orderPos], game->orderPos);
+            fgets(input, BUFSIZ, stdin);
+            continue;
+        }
         int processed = process_input(input, game);
         if (processed != 0) {
             return processed;
@@ -309,17 +335,13 @@ int parse_player(int argc, char** argv, PlayerGame *game) {
 void init_expected(PlayerGame *game) {
     game->current = "start";
     game->round = 0;
+    game->cardPos = 0;
     game->order = malloc(sizeof(int) * (game->playerCount - 1));
     game->orderPos = 0;
     for (int i = 0; i < game->playerCount; i++) {
-        if (game->myID == i) {
-            game->order[game->orderPos] = (++i);
-        } else {
-            game->order[game->orderPos] = i;
-        }
-        game->orderPos++;
+        game->order[i] = i;
+        printf(">>%d", game->order[i]);
     }
-    game->orderPos = 0;
 }
 
 void set_expected(PlayerGame *game, char* set) {
@@ -343,21 +365,15 @@ int check_expected(PlayerGame *game, char* got, int currentPlayer) {
         set_expected(game, "NEWROUND");
 
     } else if (strcmp(game->current, "NEWROUND") == 0) {
-        printf("exp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
+        printf("axp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
         fflush(stdout);
         // start of round fixme check player numbers in order?
-        if (game->expected != 0) {
-            return show_player_message(MSGERR);
-        }
         if (strcmp(got, "PLAYED") != 0) {
             return show_player_message(MSGERR);
         }
         if (game->playerCount - 1 == currentPlayer) {
             //if (game->expected == currentPlayer) {
                 // all players have moved, go to new round.
-                printf("RESET\n");
-                fflush(stdout);
-                set_expected(game, "HAND"); //todo check this and below
                 game->expected = 0;
                 return DONE;
             //} else {
@@ -371,7 +387,7 @@ int check_expected(PlayerGame *game, char* got, int currentPlayer) {
 
 
     } else if (strcmp(got, "PLAYED") == 0) {
-        printf("exp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
+        printf("bxp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
         fflush(stdout);
 
         // mid round

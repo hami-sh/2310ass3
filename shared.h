@@ -72,6 +72,7 @@ typedef struct {
     int* order;
     int orderPos;
     Card* cardsPlayed;
+    int cardPos;
 } PlayerGame;
 
 int check_expected(PlayerGame *game, char* got, int currentPlayer);

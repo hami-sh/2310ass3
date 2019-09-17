@@ -45,10 +45,7 @@ char validate_gameover(char *str) {
 
 char validate_play(char *str) {
     return
-            str[0] == 'P' &&
-            str[1] == 'L' &&
-            str[2] == 'A' &&
-            str[3] == 'Y';
+            str[0] == 'x';
 }
 
 char validate_card(char c) {
