@@ -59,7 +59,7 @@ int decode_hand(char* input, PlayerGame *game) {
         } else if (i > 0) {
             if (strlen(arrow) > 2) {
                 return show_player_message(MSGERR);
-            } else if (regex_card(arrow[0]) && (isdigit(arrow[1])
+            } else if (validate_card(arrow[0]) && (isdigit(arrow[1])
                 || isxdigit(arrow[1]))) {
                     Card card;
                     card.suit = arrow[0];
@@ -122,7 +122,7 @@ int get_current(char* input) {
 
 int process_input(char* input, PlayerGame *game) {
     char dest[500];
-    if (regex_hand(input)) {
+    if (validate_hand(input)) {
         strncpy(dest, input, 4);
         dest[4] = 0;
         int msgCheck = check_expected(game, dest, game->current);
@@ -130,7 +130,7 @@ int process_input(char* input, PlayerGame *game) {
             return msgCheck;
         }
         decode_hand(input, game);
-    } else if (regex_newround(input)) {
+    } else if (validate_newround(input)) {
         game->expected = 0;
         strncpy(dest, input, 8);
         dest[8] = 0;
@@ -139,7 +139,7 @@ int process_input(char* input, PlayerGame *game) {
             return msgCheck;
         }
         decode_newround(input);
-    } else if (regex_played(input)) {
+    } else if (validate_played(input)) {
         //todo get current from string
         game->current = get_current(input);
         strncpy(dest, input, 6);
@@ -149,7 +149,7 @@ int process_input(char* input, PlayerGame *game) {
             return msgCheck;
         }
         decode_played(input);
-    } else if (regex_gameover(input)) {
+    } else if (validate_gameover(input)) {
         gameover(input);
     } else {
         show_player_message(MSGERR);

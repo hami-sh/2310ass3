@@ -232,7 +232,7 @@ int check_string(char *card) {
         return show_message(BADDECKFILE);
     } else {
         //ensure letter is S, C, D, H
-        if (!regex_card(card[0])) {
+        if (!validate_card(card[0])) {
             return show_message(BADDECKFILE);
         }
     }
