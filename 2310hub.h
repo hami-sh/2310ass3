@@ -49,4 +49,6 @@ int game_loop(Game *game);
 
 Status show_message(Status s);
 
+int parse(int argc, char** argv, Game *game);
+
 #endif

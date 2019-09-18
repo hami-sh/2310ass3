@@ -11,7 +11,6 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include "2310hub.h"
-#include "parse.h"
 
 // global variable for SIGHUP signal.
 bool sighup = false;
@@ -213,6 +212,9 @@ int handler_deck(char* deckName, Game *game) {
         return show_message(BADDECKFILE);
     }
     int result = load_deck(f, &game->deck);
+    if (result != 0) {
+        return result;
+    }
     fclose(f);
 
     // check deck size is sufficient.

@@ -12,13 +12,148 @@
 
 #define LINESIZE 80
 
+void alice_lead_move(PlayerGame *game) {
+    char* suits = "SCDH";
+    char rank = 0;
+    Card play;
+    play.rank = -1;
+    for (int i = 0; i < game->handSize; i++) {
+        if (game->hand[i].suit == suits[0]) {
+            if (game->hand[i].rank >= rank) {
+                rank = game->hand[i].rank;
+                play = game->hand[i];
+            }
+        }
+        if (i == (game->handSize - 1)) {
+            i = 0;
+            if (play.rank != -1) {
+                break;
+            }
+            if (strcmp(suits, "H") == 0) {
+                break;
+            }
+            suits++;
+        }
+    }
+    printf("PLAY%c%c\n", play.suit, play.rank);
+    remove_card(game, &play);
+}
+
+void alice_default_move(PlayerGame *game) {
+    char* suits = "DHSC";
+    char rank = 0;
+    Card play;
+    play.rank = -1;
+    for (int i = 0; i < game->handSize; i++) {
+        if (game->hand[i].suit == suits[0]) {
+            if (game->hand[i].rank >= rank) {
+                rank = game->hand[i].rank;
+                play = game->hand[i];
+            }
+        }
+        if (i == (game->handSize - 1)) {
+            i = 0;
+            if (play.rank != -1) {
+                break;
+            }
+            if (strcmp(suits, "C") == 0) {
+                break;
+            }
+            suits++;
+        }
+    }
+    printf("PLAY%c%c\n", play.suit, play.rank);
+    remove_card(game, &play);
+}
+
+
+/**
+ * Strategy for alice movements.
+ * Will print out the move made to stdout.
+ * @param game - PlayerGame struct
+ * @return int - 0 when done.
+ */
+int alice_strategy(PlayerGame *game) {
+//    for (int i = 0; i < game->handSize; i++) {
+//        printf("-(%c%c)-", game->hand[i].suit, game->hand[i].rank);
+//    }
+    //if lead - order S C D H
+    if (game->leadPlayer == game->myID) {
+        alice_lead_move(game);
+        return DONE;
+    }
+
+    //if card in lead suit
+    if (card_in_lead_suit(game) == DONE) {
+        Card play = lowest_in_suit(game, game->leadSuit);
+        printf("PLAY%c%c\n", play.suit, play.rank);
+        remove_card(game, &play);
+        return DONE;
+    }
+
+    //default move
+    alice_default_move(game);
+
+    return DONE; //todo change
+}
+
 /* shared */
+
+void remove_card(PlayerGame *game, Card *card) {
+    int pos = 0;
+    for (int i = 0; i < game->handSize; i++) {
+        if (game->hand[i].suit == card->suit) {
+            if (game->hand[i].rank == card->rank) {
+                pos = i;
+                break;
+            }
+        }
+    }
+
+    for (int q = pos; q < game->handSize - 1; q++) {
+        // shift all cards to compensate for removal.
+        game->hand[q] = game->hand[q + 1];
+    }
+}
+
+int card_in_lead_suit(PlayerGame *game) {
+    for (int i = 0; i < game->handSize; i++) {
+        if (game->leadSuit == game->hand[i].suit) {
+            return DONE;
+        }
+    }
+    return -1;
+}
+
+Card lowest_in_suit(PlayerGame *game, char suit) {
+    int rank = 17;
+    Card play;
+    play.rank = -1;
+    for (int i = 0; i < game->handSize; i++) {
+        if (suit == game->hand[i].suit) {
+            if (get_rank_integer(game->hand[i].rank) < rank) {
+                rank = get_rank_integer(game->hand[i].rank);
+                play = game->hand[i];
+            }
+        }
+    }
+    return play;
+}
+
+int get_rank_integer(char arg) {
+    if (isdigit(arg) != 0) {
+        return arg - '0';
+    } else {
+        return arg - 86;
+    }
+}
+
 PlayerStatus show_player_message(PlayerStatus s) {
     const char* messages[] = {"",
                               "Usage: player players myid threshold handsize\n",
                               "Invalid players\n",
                               "Invalid position\n",
-                              "Invalid theshold\n",
+                              "Invalid threshold\n",
                               "Invalid hand size\n",
                               "Invalid message\n",
                               "EOF\n"};
@@ -42,7 +177,7 @@ int check_repeating_cards(Card arr[], int size) {
 int decode_hand(char* input, PlayerGame *game) {
     input += 4;
     input[strlen(input) - 1] = '\0'; // remove extra new line char.
-    int inputSize = strlen(input);
+    //int inputSize = strlen(input);
     char delim[] = ",";
     char* arrow = strtok(input, delim);
 
@@ -107,12 +242,19 @@ int decode_newround(char *input, PlayerGame *game) {
     }
 
     game->leadPlayer = atoi(leadStr);
+
+    // make move!
+    if (game->myID == 0) {
+        alice_strategy(game);
+        game->orderPos += 1;
+    }
     return DONE;
 }
 
 int decode_played(char *input, PlayerGame *game) {
+    Card newCard;
     //PLAYEDid,CARD
-    printf("played\n");
+    //printf("played\n");
     input += 6;
     input[strlen(input) - 1] = '\0';
     int i = 0;
@@ -140,11 +282,12 @@ int decode_played(char *input, PlayerGame *game) {
     game->cardsPlayed = malloc(game->handSize * game->playerCount *
             sizeof(Card));
 
+
     input += i;
     input += 1;
+
     if (validate_card(input[0]) && (isdigit(input[1]) ||
         (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
-        Card newCard;
         newCard.suit = input[0];
         newCard.rank = input[1];
         game->cardsPlayed[game->cardPos++] = newCard;
@@ -154,6 +297,16 @@ int decode_played(char *input, PlayerGame *game) {
     if (strlen(input) != 2) {
         return show_player_message(MSGERR);
     }
+
+    if (justPlayed == game->leadPlayer) {
+        game->leadSuit = newCard.suit;
+    }
+
+    if ((justPlayed + 1) == game->myID) {
+        alice_strategy(game);
+        game->orderPos += 1;
+    }
+
     return DONE;
 }
 
@@ -222,8 +375,9 @@ int cont_read_stdin(PlayerGame *game) {
     while (strcmp(input, "GAMEOVER\n") != 0) { //fixme check \n?
         //TODO DEBUG REMOVE;
         if (validate_play(input)) {
+            alice_strategy(game);
             game->orderPos += 1;
-            printf("X-<<%d>>-%d\n", game->order[game->orderPos], game->orderPos);
+            //printf("X-<<%d>>-%d\n", game->order[game->orderPos], game->orderPos);
             fgets(input, BUFSIZ, stdin);
             continue;
         }
@@ -239,6 +393,9 @@ int cont_read_stdin(PlayerGame *game) {
 int further_arg_checks(int argc, char** argv, PlayerGame *game) {
     // check threshold
     char* thresholdArg = malloc(sizeof(char) * strlen(argv[3]));
+    if (strlen(argv[3]) == 0) {
+        return show_player_message(PLAYERERR);
+    }
     for (int s = 0; s < strlen(argv[3]); s++) {
         //check if floating point
         if (argv[3][s] == '.') {
@@ -259,6 +416,9 @@ int further_arg_checks(int argc, char** argv, PlayerGame *game) {
 
     // hand size
     char* handArg = malloc(sizeof(char) * strlen(argv[4]));
+    if (strlen(argv[4]) == 0) {
+        return show_player_message(PLAYERERR);
+    }
     for (int s = 0; s < strlen(argv[4]); s++) {
         //check if floating point
         if (argv[4][s] == '.') {
@@ -285,6 +445,9 @@ int parse_player(int argc, char** argv, PlayerGame *game) {
 
     // check playerCount
     char* countArg = malloc(sizeof(char) * strlen(argv[1]));
+    if (strlen(argv[1]) == 0) {
+        return show_player_message(PLAYERERR);
+    }
     for (int s = 0; s < strlen(argv[1]); s++) {
         //check if floating point
         if (argv[1][s] == '.') {
@@ -305,6 +468,9 @@ int parse_player(int argc, char** argv, PlayerGame *game) {
 
     // check playerID
     char* idArg = malloc(sizeof(char) * strlen(argv[2]));
+    if (strlen(argv[2]) == 0) {
+        return show_player_message(PLAYERERR);
+    }
     for (int s = 0; s < strlen(argv[2]); s++) {
         //check if floating point
         if (argv[2][s] == '.') {
@@ -340,7 +506,7 @@ void init_expected(PlayerGame *game) {
     game->orderPos = 0;
     for (int i = 0; i < game->playerCount; i++) {
         game->order[i] = i;
-        printf(">>%d", game->order[i]);
+        //printf(">>%d", game->order[i]);
     }
 }
 
@@ -349,7 +515,7 @@ void set_expected(PlayerGame *game, char* set) {
 }
 
 int check_expected(PlayerGame *game, char* got, int currentPlayer) {
-    printf("before: %s got:%s\n", game->current, got);
+    //printf("before: %s got:%s\n", game->current, got);
     if (strcmp(game->current, "start") == 0) {
         // we expect HAND - we want to start the game
         if (strcmp(got, "HAND") != 0) {
@@ -365,7 +531,7 @@ int check_expected(PlayerGame *game, char* got, int currentPlayer) {
         set_expected(game, "NEWROUND");
 
     } else if (strcmp(game->current, "NEWROUND") == 0) {
-        printf("axp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
+        //printf("axp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
         fflush(stdout);
         // start of round fixme check player numbers in order?
         if (strcmp(got, "PLAYED") != 0) {
@@ -387,7 +553,7 @@ int check_expected(PlayerGame *game, char* got, int currentPlayer) {
 
 
     } else if (strcmp(got, "PLAYED") == 0) {
-        printf("bxp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
+        //printf("bxp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
         fflush(stdout);
 
         // mid round
