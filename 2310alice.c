@@ -398,10 +398,9 @@ int decode_played(char *input, PlayerGame *game) {
 /**
  * Function to handle gameover message from stdin.
  * @param input - string representing message
- * @return fixme
+ * @return //fixme
  */
 int gameover(char *input) {
-
     return DONE;
 }
 
@@ -429,7 +428,7 @@ int extract_last_player(char *input) {
 }
 
 int process_input(char *input, PlayerGame *game) {
-    char dest[500];
+    char *dest = malloc(sizeof(char) * strlen(input));
     if (validate_hand(input)) {
         strncpy(dest, input, 4);
         dest[4] = 0;
@@ -437,7 +436,10 @@ int process_input(char *input, PlayerGame *game) {
         if (msgCheck != 0) {
             return msgCheck;
         }
-        decode_hand(input, game);
+        int decode = decode_hand(input, game);
+        if (decode != 0) {
+            return decode;
+        }
     } else if (validate_newround(input)) {
         game->expected = 0;
         strncpy(dest, input, 8);
@@ -446,7 +448,10 @@ int process_input(char *input, PlayerGame *game) {
         if (msgCheck != 0) {
             return msgCheck;
         }
-        decode_newround(input, game);
+        int decode = decode_newround(input, game);
+        if (decode != 0) {
+            return decode;
+        }
     } else if (validate_played(input)) {
         //todo get current from string
         game->playerMove = extract_last_player(input);
@@ -456,12 +461,14 @@ int process_input(char *input, PlayerGame *game) {
         if (msgCheck != 0) {
             return msgCheck;
         }
-        decode_played(input, game);
+        int decode = decode_played(input, game);
+        if (decode != 0) {
+            return decode;
+        }
     } else if (validate_gameover(input)) {
-        gameover(input);
-
+        return gameover(input);
     } else {
-        show_player_message(MSGERR);
+        return show_player_message(MSGERR);
     }
     return 0;
 }
@@ -481,7 +488,6 @@ int cont_read_stdin(PlayerGame *game) {
         if (validate_play(input)) {
             alice_strategy(game);
             game->orderPos += 1;
-            //printf("X-<<%d>>-%d\n", game->order[game->orderPos], game->orderPos);
             fgets(input, BUFSIZ, stdin);
             continue;
         }
@@ -644,67 +650,45 @@ void set_expected(PlayerGame *game, char *set) {
 int check_expected(PlayerGame *game, char *got, int currentPlayer) {
 //    printf("state: %s got:%s\n", game->current, got);
     if (strcmp(game->current, "start") == 0) {
+        /* BEGINNING STATE */
         // we expect HAND - we want to start the game
         if (strcmp(got, "HAND") != 0) {
             return show_player_message(MSGERR);
         }
-        // expected current to be newround
+        // expected next state to be newround
         set_expected(game, "HAND");
 
     } else if (strcmp(game->current, "HAND") == 0) {
+        /* HAND STATE */
+        // we expect the next to be newround to start the game
         if (strcmp(got, "NEWROUND") != 0) {
             return show_player_message(MSGERR);
         }
         set_expected(game, "NEWROUND");
 
     } else if (strcmp(game->current, "NEWROUND") == 0) {
-        //printf("axp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
-        fflush(stdout);
-        // start of round fixme check player numbers in order?
+        /* NEWROUND STATE */
+        //we expect to get a played message
         if (strcmp(got, "PLAYED") != 0) {
             return show_player_message(MSGERR);
         }
-        if (game->playerCount - 1 == currentPlayer) {
-            //if (game->expected == currentPlayer) {
-            // all players have moved, go to new round.
-            game->expected = 0;
-            return DONE;
-            //} else {
-            // player has been missed
-            return show_player_message(MSGERR);
-            //}
-        }
-        // expect current to be another move
+        // expect next state to be another move
         set_expected(game, "PLAYED");
-        game->expected++;
-
 
     } else if (strcmp(got, "PLAYED") == 0) {
-        //printf("bxp: %d playC: %d, player: %d\n", game->expected, game->playerCount, currentPlayer);
-        fflush(stdout);
-
-        // mid round
-        if (currentPlayer != game->expected) {
-            return show_player_message(MSGERR);
-        }
+        /* PLAYED STATE */
         if (strcmp(got, "PLAYED") != 0) {
             return show_player_message(MSGERR);
         }
         if (game->playerCount - 1 == currentPlayer) {
-            //if (game->expected == currentPlayer) {
             // all players have moved, go to new round.
-            printf("RESET\n");
-            fflush(stdout);
+//            printf("RESET\n");
+//            fflush(stdout);
             set_expected(game, "HAND");
-            game->expected = 0;
             return DONE;
-            //} else {
-            // player has been missed
-            return show_player_message(MSGERR);
-            //}
+
         }
         // expected current to be another move
-        game->expected++;
         set_expected(game, "PLAYED");
     }
     return DONE;
