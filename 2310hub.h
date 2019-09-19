@@ -37,11 +37,11 @@ typedef enum {
 //    int out;
 //} Pipe;
 
-int handler_deck(char* deckName, Game *game);
+int handler_deck(char *deckName, Game *game);
 
-int load_deck(FILE* input, Deck* deck);
+int load_deck(FILE *input, Deck *deck);
 
-int player_arg_checker(int argc, char** argv, Game *game);
+int player_arg_checker(int argc, char **argv, Game *game);
 
 void handle_sighup(int s);
 
@@ -49,6 +49,6 @@ int game_loop(Game *game);
 
 Status show_message(Status s);
 
-int parse(int argc, char** argv, Game *game);
+int parse(int argc, char **argv, Game *game);
 
 #endif

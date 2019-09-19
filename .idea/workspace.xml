@@ -12,13 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d33790e2-6c45-48e8-aeed-631455ec034b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/hamishbultitude.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/hamishbultitude.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310alice.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310alice.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2310hub.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.h" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ass3_spec.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/ass3_spec.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared.c" beforeDir="false" afterPath="$PROJECT_DIR$/shared.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared.h" beforeDir="false" afterPath="$PROJECT_DIR$/shared.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -36,7 +32,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/2310hub.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
+            <state relative-caret-position="4767">
               <caret line="227" column="20" selection-start-line="227" selection-start-column="20" selection-end-line="227" selection-end-column="20" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -49,7 +45,7 @@
         <entry file="file://$PROJECT_DIR$/2310alice.c">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="316">
-              <caret line="373" column="32" selection-start-line="373" selection-start-column="32" selection-end-line="373" selection-end-column="32" />
+              <caret line="141" column="7" lean-forward="true" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -58,10 +54,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/2310hub.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="483">
+              <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="31" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/shared.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-154">
-              <caret line="32" column="14" lean-forward="true" selection-start-line="32" selection-start-column="14" selection-end-line="32" selection-end-column="14" />
+            <state relative-caret-position="546">
+              <caret line="26" column="5" selection-start-line="26" selection-start-column="5" selection-end-line="33" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -88,10 +96,8 @@
       <find>MSGERr</find>
       <find>pipeIn</find>
       <find>strcmp</find>
-      <find>alice</find>
       <find>isd</find>
       <find>state</find>
-      <find>PLAY</find>
       <find>init_expect</find>
       <find>orderPos</find>
       <find>hex</find>
@@ -107,6 +113,10 @@
       <find>played</find>
       <find>newCard</find>
       <find>bxp</find>
+      <find>alice</find>
+      <find>expected</find>
+      <find>PLAY</find>
+      <find>PLAY%c%C</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -131,8 +141,8 @@
         <option value="$PROJECT_DIR$/todo" />
         <option value="$PROJECT_DIR$/Makefile" />
         <option value="$PROJECT_DIR$/2310hub.c" />
-        <option value="$PROJECT_DIR$/2310hub.h" />
         <option value="$PROJECT_DIR$/shared.c" />
+        <option value="$PROJECT_DIR$/2310hub.h" />
         <option value="$PROJECT_DIR$/shared.h" />
         <option value="$PROJECT_DIR$/2310alice.c" />
       </list>
@@ -285,12 +295,14 @@
       <workItem from="1568703120317" duration="11294000" />
       <workItem from="1568756213018" duration="373000" />
       <workItem from="1568789866265" duration="892000" />
-      <workItem from="1568790873904" duration="6687000" />
+      <workItem from="1568790873904" duration="8609000" />
+      <workItem from="1568865610892" duration="606000" />
+      <workItem from="1568866558600" duration="1791000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69966000" />
+    <option name="totallyTimeSpent" value="74285000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -305,7 +317,7 @@
     <frame x="649" y="25" width="1779" height="991" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5444319" visible="true" weight="0.14680484" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5444319" visible="true" weight="0.15025906" />
       <window_info id="Structure" order="1" sideWeight="0.45556805" side_tool="true" weight="0.19098713" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -483,23 +495,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/2310hub.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4767">
+          <caret line="227" column="20" selection-start-line="227" selection-start-column="20" selection-end-line="227" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/2310hub.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="746">
-          <caret line="52" selection-start-line="52" selection-end-line="52" />
+        <state relative-caret-position="483">
+          <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="31" selection-end-column="17" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/2310hub.c">
+    <entry file="file://$PROJECT_DIR$/shared.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="227" column="20" selection-start-line="227" selection-start-column="20" selection-end-line="227" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="546">
+          <caret line="26" column="5" selection-start-line="26" selection-start-column="5" selection-end-line="33" selection-end-column="14" />
         </state>
       </provider>
     </entry>
@@ -513,17 +532,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/shared.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-154">
-          <caret line="32" column="14" lean-forward="true" selection-start-line="32" selection-start-column="14" selection-end-line="32" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/2310alice.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="316">
-          <caret line="373" column="32" selection-start-line="373" selection-start-column="32" selection-end-line="373" selection-end-column="32" />
+          <caret line="141" column="7" lean-forward="true" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
