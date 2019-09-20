@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -pedantic -std=gnu99
 DEBUG = -g
-TARGETS = 2310hub 2310alice
+TARGETS = 2310hub 2310alice 2310bob
 
 # Mark the default target to run (otherwise make will select the first target in the file)
 .DEFAULT: all
@@ -26,6 +26,9 @@ debug: clean $(TARGETS)
 
 2310alice: 2310alice.c shared.o
 	$(CC) $(CFLAGS) 2310alice.c shared.o -o 2310alice
+
+2310bob: 2310bob.c shared.o
+	$(CC) $(CFLAGS) 2310bob.c shared.o -o 2310bob
 
 shared.o: shared.c
 	$(CC) $(CFLAGS) -c shared.c

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include "string.h"
 
 #ifndef HUB_H
 #define HUB_H
@@ -17,6 +18,10 @@ typedef struct {
     int playerCount;
     int leadPlayer;
     int numCardsToDeal;
+    pid_t *pidChildren;
+
+    char* state;
+    int roundNumber; // 1 based.
 } Game;
 
 typedef enum {
@@ -31,6 +36,19 @@ typedef enum {
     PLAYERCHOICE = 8,
     GOTSIGHUP = 9
 } Status;
+
+typedef enum {
+    START = 0,
+    HAND = 1,
+    NEWROUND = 2,
+    PLAYING = 3,
+    ENDROUND = 4,
+    ENDGAME = 5,
+//    PLAYEREOF = 6,
+//    PLAYERMSG = 7,
+//    PLAYERCHOICE = 8,
+//    GOTSIGHUP = 9
+} State;
 
 //typedef struct {
 //    int in;
@@ -50,5 +68,15 @@ int game_loop(Game *game);
 Status show_message(Status s);
 
 int parse(int argc, char **argv, Game *game);
+
+void init_state(Game *game);
+
+void set_state(Game *game, char *state);
+
+int get_state(Game *game);
+
+int next_state(Game *game);
+
+void remove_deck_card(Game *game, Card *card);
 
 #endif

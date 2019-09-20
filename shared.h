@@ -58,7 +58,6 @@ typedef struct {
     Card card;
 } Play;
 
-
 typedef struct {
     Card hand[60];
     int handSize;
@@ -77,8 +76,14 @@ typedef struct {
     int orderPos;
     Card *cardsPlayed;
     int cardPos;
+
+    int (*player_strategy)();
+    int dPlayedRound;
+    int* dPlayerNumber;
+
 } PlayerGame;
 
+int (*player_strategy)(PlayerGame *game);
 
 int check_expected(PlayerGame *game, char *got, int currentPlayer);
 
@@ -96,8 +101,30 @@ void remove_card(PlayerGame *game, Card *card);
 
 void alice_default_move(PlayerGame *game);
 
+PlayerStatus show_player_message(PlayerStatus s);
+
+int check_repeating_cards(Card arr[], int size);
+
+int decode_hand(char *input, PlayerGame *game);
+
+int decode_newround(char *input, PlayerGame *game);
+
+int decode_played(char *input, PlayerGame *game);
+
+int gameover(char *input);
+
+int extract_last_player(char *input);
+
+int process_input(char *input, PlayerGame *game);
+
+int cont_read_stdin(PlayerGame *game);
+
+int further_arg_checks(int argc, char **argv, PlayerGame *game);
+
+int parse_player(int argc, char **argv, PlayerGame *game);
 
 #endif
+
 
 
 

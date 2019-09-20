@@ -35,6 +35,11 @@ Status show_message(Status s) {
     return s;
 }
 
+/**
+ * Function to return how many digits there are in the supplied number.
+ * @param i - the number to get the digits of
+ * @return the number of digits.
+ */
 int numberDigits (int i) {
     if (i == 0) {
         return 1;
@@ -45,7 +50,15 @@ int numberDigits (int i) {
     return fl + 1;
 }
 
+/**
+ * Function to perform forking of players
+ * @param game struct representing player's tracking of game.
+ * @param argv arguments from command line.
+ * @return 0 - no errors
+ *         5 - error starting the players
+ */
 int create_players(Game *game, char** argv) {
+    game->pidChildren = malloc(game->playerCount * sizeof(int));
     game->players = malloc(game->playerCount * sizeof(Player));
     game->numCardsToDeal = floor((game->deck.count / game->playerCount));
 
@@ -56,12 +69,20 @@ int create_players(Game *game, char** argv) {
         pipe(game->players[i].pipeOut);
 //        printf(">>IN%d in:%d out:%d\n", i, game->players[i].pipeIn[0], game->players[i].pipeIn[1]);
 //        printf(">>OUT%d in:%d out:%d\n", i, game->players[i].pipeOut[0], game->players[i].pipeOut[1]);
-        if (!fork()) {
+        pid_t pid;
+        if ((pid = fork()) < 0) {
+            return show_message(PLAYERSTART);
+        } else if (pid == 0) {
             // child
             close(game->players[i].pipeIn[1]); // for child - close write end.
             close(game->players[i].pipeOut[0]); // for child - close read end.
             dup2(game->players[i].pipeIn[0], STDIN_FILENO); //send pipeA stuff to stdin of child.
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO); //send stdout child to write of pipeB
+
+            //todo DEBUG REPLACE
+            int dev = open("/dev/null", O_WRONLY);
+            dup2(dev, 2); // supress stderr of child
+
 
             char* args[6];
             args[0] = argv[i + 3];
@@ -73,13 +94,14 @@ int create_players(Game *game, char** argv) {
             sprintf(args[2], "%d", i);
             sprintf(args[3], "%d", game->threshold);
             sprintf(args[4], "%d", game->numCardsToDeal);
+            //printf("%d\n", game->numCardsToDeal);
             args[5] = 0;
             execv(argv[i + 3], args);
-            exit(5);
             return show_message(PLAYERSTART);
 
         } else {
             // parent
+            game->pidChildren[i] = pid;
             game->players[i].size = game->numCardsToDeal;
             close(game->players[i].pipeIn[0]);
             close(game->players[i].pipeOut[1]);
@@ -97,8 +119,9 @@ int create_players(Game *game, char** argv) {
 
 /**
  * Function to go through each player and read to check if we get "@"
- * @param game - game struct
- * @return 0 if ok, 5 if player cannot be found.
+ * @param game struct representing player's tracking of game.
+ * @return 0 if ok
+ *         5 if player cannot be found.
  */
 int check_players(Game *game) {
     for (int i = 0; i < game->playerCount; i++) {
@@ -111,26 +134,79 @@ int check_players(Game *game) {
     return show_message(OK);
 }
 
+/**
+ * Function to handle the creation of a game.
+ * @param argc - number of command line args
+ * @param argv - arguments supplied on command line.
+ * @return 0 - normal exit after game
+ *         3 - error parsing deck
+ *         4 - error parsing deck
+ *         5 - error starting player
+ *         6 - EOF from player
+ *         7 - invalid player message
+ *         8 - invalid card choice from player
+ *         9 - received SIGHUP signal.
+ */
 int new_game(int argc, char** argv) {
     Game game;
     int parseStatus = parse(argc, argv, &game);
     if (parseStatus != 0) {
         return parseStatus;
     }
-    printf("new game\n");
 
-    create_players(&game, argv);
-
-    fprintf(game.players[0].fileIn, "HAND3,C1,C2,C3\n");
-    fflush(game.players[0].fileIn);
+    int createStatus = create_players(&game, argv);
+    if (createStatus != 0) {
+        return createStatus;
+    }
 
     int playerStatus = check_players(&game);
     if (playerStatus != 0) {
         return playerStatus;
     }
 
-
+    init_state(&game);
     return show_message(game_loop(&game));
+}
+
+
+int deal_card_to_player(Game *game, int id) {
+    Card cardsForPlayer[game->numCardsToDeal];
+    int j;
+    for (j = 0; j < game->numCardsToDeal; j++) {
+        cardsForPlayer[j] = game->deck.contents[j];
+//        printf("%c%c-", cardsForPlayer[j].suit, cardsForPlayer[j].rank);
+    }
+    for (j = 0; j < game->numCardsToDeal; j++) {
+        remove_deck_card(game, &cardsForPlayer[j]);
+    }
+
+    //HANDx,C1,C2,C3...,Cn
+    int cardNo = game->numCardsToDeal;
+    char* hand = malloc((4 + numberDigits(cardNo) + cardNo + (cardNo * 2) + 1)
+            * sizeof(char));
+    strcpy(hand, "HAND");
+    char insertNumber[cardNo];
+    sprintf(insertNumber, "%d", cardNo);
+    int i;
+    for (i = 4; i < (numberDigits(cardNo) + 4); i++) {
+        hand[i] = insertNumber[i - 4];
+    }
+    int pos = 0;
+    for (i = i; i < (cardNo + (cardNo * 2) + numberDigits(cardNo) + 3); i++ ) {
+        if ((i - (4 + numberDigits(cardNo))) % 3 == 0) {
+            // comma
+            hand[i] = ',';
+        } else {
+            hand[i] = cardsForPlayer[pos].suit;
+            hand[++i] = cardsForPlayer[pos].rank;
+            pos++;
+        }
+    }
+    hand[i] = '\0';
+    hand[i] = '\n';
+//    printf("%s\n", hand);
+    fprintf(game->players[id].fileIn, hand);
+    fflush(game->players[id].fileIn);
 }
 
 int game_loop(Game *game) {
@@ -140,16 +216,35 @@ int game_loop(Game *game) {
     sa_sighup.sa_flags = SA_RESTART;
     sigaction(SIGHUP, &sa_sighup, 0);
 
-    while (true) {
-        while (!sighup) {
-            struct timespec nap;
-            nap.tv_sec = 0;
-            nap.tv_nsec = 5000000000;
-            nanosleep(&nap, 0);
+//    while (true) {
+    while (!sighup) {
+        struct timespec nap;
+        nap.tv_sec = 0;
+        nap.tv_nsec = 5000000000;
+        nanosleep(&nap, 0);
+
+        if (get_state(game) == START) {
+            for (int i = 0; i < game->playerCount; i++) {
+                deal_card_to_player(game, i);
+            }
+            next_state(game);
+            next_state(game); //fixme bruh
+            continue;
+        } else if (get_state(game) == NEWROUND) {
+            //todo continue & break below into separate section.
         }
-        //todo kill children
-        return GOTSIGHUP;
     }
+    // kill children
+    for (int i = 0; i < game->playerCount; i++) {
+        fclose(game->players[i].fileOut);
+        fclose(game->players[i].fileIn);
+        close(game->players[i].pipeIn[1]);
+        close(game->players[i].pipeOut[0]);
+        kill(game->pidChildren[i], SIGKILL); //kill children
+        wait(NULL); //reap zombies
+    }
+    return GOTSIGHUP;
+//    }
 
     return OK;
 }
@@ -306,6 +401,78 @@ int load_deck(FILE* input, Deck* deck) {
     } else {
         return show_message(BADDECKFILE);
     }
+}
+
+void init_state(Game *game) {
+    game->state = "start";
+}
+
+void set_state(Game *game, char *state) {
+    game->state = state;
+}
+
+int get_state(Game *game) {
+    if (strcmp(game->state, "start") == 0) {
+        return START;
+    } else if (strcmp(game->state, "HAND") == 0) {
+        return HAND;
+    } else if (strcmp(game->state, "NEWROUND") == 0) {
+        return NEWROUND;
+    } else if (strcmp(game->state, "PLAYING") == 0) {
+        return PLAYING;
+    } else if (strcmp(game->state, "ENDROUND") == 0) {
+        return ENDROUND;
+    } else if (strcmp(game->state, "ENDGAME") == 0) {
+        return ENDGAME;
+    }
+    return -1;
+}
+
+int next_state(Game *game) {
+    if (strcmp(game->state, "start") == 0) {
+        // start of game
+        game->state = "HAND";
+        return HAND;
+    } else if (strcmp(game->state, "HAND") == 0) {
+        // given out hands
+        game->state = "NEWROUND";
+        return NEWROUND;
+    } else if (strcmp(game->state, "NEWROUND") == 0) {
+        // read player 0, send out PLAYED0
+        // read player 1, send out PLAYED1 ...
+        game->state = "PLAYING";
+        return PLAYING;
+    } else if (strcmp(game->state, "PLAYING") == 0) {
+        // end round stuff
+        game->state = "ENDROUND";
+        return ENDROUND;
+    } else if (strcmp(game->state, "ENDROUND") == 0) {
+        if (game->roundNumber == game->numCardsToDeal) {
+            game->state = "ENDGAME";
+            return ENDGAME;
+        } else {
+            game->state = "NEWROUND";
+            return NEWROUND;
+        }
+    }
+}
+
+void remove_deck_card(Game *game, Card *card) {
+    int pos = 0;
+    for (int i = 0; i < game->deck.count; i++) {
+        if (game->deck.contents[i].suit == card->suit) {
+            if (game->deck.contents[i].rank == card->rank) {
+                pos = i;
+                break;
+            }
+        }
+    }
+    for (int q = pos; q < game->deck.count - 1; q++) {
+        // shift all cards to compensate for removal.
+        game->deck.contents[q] = game->deck.contents[q + 1];
+    }
+    game->deck.count -= 1;
+    game->deck.used += 1;
 }
 
 void handle_sighup(int s) {
