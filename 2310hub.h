@@ -17,11 +17,14 @@ typedef struct {
     int threshold;
     int playerCount;
     int leadPlayer;
+    char leadSuit;
     int numCardsToDeal;
     pid_t *pidChildren;
 
     char* state;
     int roundNumber; // 1 based.
+    int firstRound; //0 if not, 1 if so.
+    Card **cardsByRound;
 } Game;
 
 typedef enum {

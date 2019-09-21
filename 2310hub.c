@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include "2310hub.h"
+#include <limits.h>
 
 // global variable for SIGHUP signal.
 bool sighup = false;
@@ -66,8 +67,8 @@ int create_players(Game *game, char** argv) {
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO); //send stdout child to write of pipeB
 
             //todo DEBUG REPLACE
-            int dev = open("/dev/null", O_WRONLY);
-            dup2(dev, 2); // supress stderr of child
+//            int dev = open("/dev/null", O_WRONLY);
+//            dup2(dev, 2); // supress stderr of child
 
 
             char* args[6];
@@ -135,6 +136,8 @@ int check_players(Game *game) {
  */
 int new_game(int argc, char** argv) {
     Game game;
+    game.firstRound = 1;
+    game.leadPlayer = 0;
     int parseStatus = parse(argc, argv, &game);
     if (parseStatus != 0) {
         return parseStatus;
@@ -174,7 +177,7 @@ int deal_card_to_player(Game *game, int id) {
 
     //HANDx,C1,C2,C3...,Cn
     int cardNo = game->numCardsToDeal;
-    char* hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 1)
+    char* hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 2)
             * sizeof(char));
     strcpy(hand, "HAND");
     char insertNumber[cardNo];
@@ -194,12 +197,73 @@ int deal_card_to_player(Game *game, int id) {
             pos++;
         }
     }
-    hand[i] = '\0';
     hand[i] = '\n';
-//    printf("%s\n", hand);
+    hand[i + 1] = '\0';
     fprintf(game->players[id].fileIn, hand);
     fflush(game->players[id].fileIn);
     return DONE;
+}
+
+void newround_msg(Game *game) {
+    if (game->firstRound) {
+        for (int i = 0; i < game->playerCount; i++) {
+            fprintf(game->players[i].fileIn, "NEWROUND0\n");
+            fflush(game->players[i].fileIn);
+        }
+    } else {
+        //based on lead player
+    }
+    next_state(game);
+}
+
+void calculate_scores(Game *game) {
+
+}
+
+
+int send_and_receive(Game *game) {
+    int playerMove = game->leadPlayer;
+    bool go = true;
+    while (go) {
+        // get current player move
+        const short buffSize = (short)log10(INT_MAX) + 3; // +2 to allow for \n\0
+        char buffer[buffSize];
+        if (!fgets(buffer, buffSize - 1, game->players[playerMove].fileOut)
+            || feof(game->players[playerMove].fileOut)
+            || ferror(game->players[playerMove].fileOut)) {
+            //fixme do something here
+            printf("bruh\n");
+        }
+        printf("%d: %s", playerMove, buffer);
+        //todo validate move
+
+        if (playerMove == game->leadPlayer) {
+            game->leadSuit = buffer[4];
+        }
+        // send move to other players
+        char* playedMsg = malloc(7 + number_digits(playerMove) + 2);
+        sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4], buffer[5]);
+        for (int i = 0; i < game->playerCount; i++) {
+            if (i != playerMove) {
+                fprintf(game->players[i].fileIn, playedMsg);
+                fflush(game->players[i].fileIn);
+            }
+        }
+        playerMove += 1; // move to next player
+        if (playerMove == game->playerCount) {
+            go = false;
+            break;
+        }
+    }
+    return OK;
+}
+
+void end_round_output(Game *game) {
+    printf("ENDROUND\n");
+}
+
+void end_game_output(Game *game) {
+    printf("ENDGAME\n");
 }
 
 /**
@@ -232,6 +296,22 @@ int game_loop(Game *game) {
             continue;
         } else if (get_state(game) == NEWROUND) {
             //todo continue & break below into separate section.
+            newround_msg(game);
+        } else if (get_state(game) == PLAYING) {
+            int response = send_and_receive(game);
+            if (response != 0) {
+                return response;
+            }
+            next_state(game);
+            continue;
+        } else if (get_state(game) == ENDROUND) {
+            end_round_output(game);
+            game->roundNumber++;
+            next_state(game);
+            continue;
+        } else if (get_state(game) == ENDGAME) {
+            end_game_output(game);
+            return OK;
         }
     }
     // kill children
@@ -435,6 +515,11 @@ int load_deck(FILE* input, Deck* deck) {
 
 void init_state(Game *game) {
     game->state = "start";
+    game->cardsByRound = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
+    for (int i = 0; i < 20; i++) {
+        game->cardsByRound[i] = (Card *)malloc(sizeof(Card) * game->playerCount);
+    }
+
 }
 
 void set_state(Game *game, char *state) {

@@ -278,6 +278,7 @@ int decode_hand(char *input, PlayerGame *game) {
  */
 int decode_newround(char *input, PlayerGame *game) {
     game->orderPos = 0;
+    game->cardPos = 0;
     game->dPlayedRound = 0;
     input += 8;
     input[strlen(input) - 1] = '\0';
@@ -375,7 +376,6 @@ int decode_played(char *input, PlayerGame *game) {
     char *playedID = malloc(i * sizeof(char));
     strncpy(playedID, input, i);
     int justPlayed = atoi(playedID);
-
     //printf("-<<%d>><%d>><<%d>>-\n", justPlayed, game->order[game->playerCount - 1], game->playerCount-1);
     if (justPlayed != game->order[game->orderPos]) {
         return show_player_message(MSGERR);
@@ -390,7 +390,6 @@ int decode_played(char *input, PlayerGame *game) {
     game->cardsPlayed = malloc(game->handSize * game->playerCount * 2 *
                                sizeof(Card));
 
-
     input += i;
     input += 1;
 
@@ -399,6 +398,7 @@ int decode_played(char *input, PlayerGame *game) {
         newCard.suit = input[0];
         newCard.rank = input[1];
         save_card(game, &newCard);
+//        printf("hi3\n");
 
         game->cardPos += 1;
     } else {
@@ -415,17 +415,14 @@ int decode_played(char *input, PlayerGame *game) {
     if (justPlayed == (game->playerCount - 1)) {
         player_end_of_round_output(game);
     }
-
     if ((justPlayed + 1) == game->myID) {
         game->player_strategy(game);
         game->orderPos += 1;
     }
-
     if (newCard.suit == 'D') {
         game->dPlayedRound++;
         game->dPlayerNumber[justPlayed]++;
     }
-
     return DONE;
 }
 
@@ -519,6 +516,7 @@ int cont_read_stdin(PlayerGame *game) {
     fgets(input, BUFSIZ, stdin);
     while (strcmp(input, "GAMEOVER\n") != 0 && !feof(stdin)) { //fixme check \n?
         //TODO DEBUG REMOVE;
+        //printf("in %s\n", input);
         if (validate_play(input)) {
             game->player_strategy(game);
             game->orderPos += 1;

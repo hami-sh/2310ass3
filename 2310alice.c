@@ -41,6 +41,7 @@ void alice_lead_move(PlayerGame *game) {
     save_card(game, &play);
     //game->cardsPlayed[game->cardPos++] = play;
     printf("PLAY%c%c\n", play.suit, play.rank);
+    fflush(stdout);
     remove_card(game, &play);
 }
 
@@ -79,6 +80,7 @@ void alice_default_move(PlayerGame *game) {
     save_card(game, &play);
     game->cardPos += 1;
     printf("PLAY%c%c\n", play.suit, play.rank);
+    fflush(stdout);
     remove_card(game, &play);
 }
 
@@ -107,6 +109,7 @@ int alice_strategy(PlayerGame *game) {
         save_card(game, &play);
         game->cardPos += 1;
         printf("PLAY%c%c\n", play.suit, play.rank);
+        fflush(stdout);
         remove_card(game, &play);
         return DONE;
     }
