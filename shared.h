@@ -79,11 +79,21 @@ typedef struct {
 
     int (*player_strategy)();
     int dPlayedRound;
-    int* dPlayerNumber;
+    int *dPlayerNumber;
+    char *cardsFromRound;
+    char **cardsStored;
+    int largestPlayer;
+    int roundWinner;
 
 } PlayerGame;
 
+void save_card(PlayerGame *game, Card *card);
+
 int (*player_strategy)(PlayerGame *game);
+
+int number_digits(int i);
+
+void player_end_of_round_output(PlayerGame *game);
 
 int check_expected(PlayerGame *game, char *got, int currentPlayer);
 

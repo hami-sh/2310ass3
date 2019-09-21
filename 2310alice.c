@@ -37,6 +37,9 @@ void alice_lead_move(PlayerGame *game) {
             suits++;
         }
     }
+
+    save_card(game, &play);
+    //game->cardsPlayed[game->cardPos++] = play;
     printf("PLAY%c%c\n", play.suit, play.rank);
     remove_card(game, &play);
 }
@@ -73,6 +76,8 @@ void alice_default_move(PlayerGame *game) {
             suits++;
         }
     }
+    save_card(game, &play);
+    game->cardPos += 1;
     printf("PLAY%c%c\n", play.suit, play.rank);
     remove_card(game, &play);
 }
@@ -99,6 +104,8 @@ int alice_strategy(PlayerGame *game) {
     if (card_in_lead_suit(game) == DONE) {
         //printf("2nd\n");
         Card play = lowest_in_suit(game, game->leadSuit);
+        save_card(game, &play);
+        game->cardPos += 1;
         printf("PLAY%c%c\n", play.suit, play.rank);
         remove_card(game, &play);
         return DONE;
@@ -110,6 +117,7 @@ int alice_strategy(PlayerGame *game) {
     if (game->myID == game->playerCount - 1) {
 //        printf("yeehaw\n");
         //set_expected(game, "NEWROUND"); // all players have moved.
+        player_end_of_round_output(game);
     }
 
     return DONE; //todo change

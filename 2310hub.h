@@ -28,7 +28,7 @@ typedef enum {
     OK = 0,
     LESS4ARGS = 1,
     THRESHOLD = 2,
-    BADDECKFILE = 3,
+     BADDECKFILE = 3,
     SHORTDECK = 4,
     PLAYERSTART = 5,
     PLAYEREOF = 6,

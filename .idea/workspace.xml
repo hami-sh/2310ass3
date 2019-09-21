@@ -12,14 +12,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d33790e2-6c45-48e8-aeed-631455ec034b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/2310alice.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/hamishbultitude.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/hamishbultitude.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310alice.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310alice.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310bob.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310bob.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.h" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ass3_spec.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/ass3_spec.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared.c" beforeDir="false" afterPath="$PROJECT_DIR$/shared.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared.h" beforeDir="false" afterPath="$PROJECT_DIR$/shared.h" afterDir="false" />
     </list>
@@ -33,16 +32,27 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/2310hub.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="147" column="39" selection-start-line="147" selection-start-column="39" selection-end-line="147" selection-end-column="39" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-963">
+              <caret line="9" selection-start-line="9" selection-end-line="9" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -50,17 +60,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/shared.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2079">
-              <caret line="99" column="5" selection-start-line="99" selection-start-column="5" selection-end-line="99" selection-end-column="5" />
+            <state relative-caret-position="253">
+              <caret line="79" column="10" selection-start-line="79" selection-start-column="10" selection-end-line="79" selection-end-column="10" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/shared.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1827">
-              <caret line="87" column="3" selection-start-line="87" selection-start-column="3" selection-end-line="87" selection-end-column="3" />
+            <state relative-caret-position="286">
+              <caret line="321" column="32" selection-start-line="321" selection-start-column="32" selection-end-line="321" selection-end-column="32" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -71,8 +81,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/2310alice.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="431">
-              <caret line="83" column="3" lean-forward="true" selection-start-line="83" selection-start-column="3" selection-end-line="83" selection-end-column="61" />
+            <state relative-caret-position="293">
+              <caret line="116" selection-start-line="116" selection-end-line="116" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/2310bob.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="560">
+              <caret line="162" column="47" selection-start-line="162" selection-start-column="47" selection-end-line="162" selection-end-column="47" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -83,8 +105,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/2310hub.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="588">
-              <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
+            <state relative-caret-position="-437">
+              <caret line="30" column="5" selection-start-line="30" selection-start-column="5" selection-end-line="30" selection-end-column="5" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -96,26 +118,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>RESET</find>
-      <find>THRESH</find>
-      <find>further</find>
-      <find>DECK</find>
-      <find>validate_play</find>
-      <find>decode</find>
-      <find>&gt;&gt;</find>
-      <find>newCard</find>
-      <find>bxp</find>
-      <find>expected</find>
-      <find>PLAY</find>
-      <find>PLAY%c%C</find>
-      <find>expec</find>
-      <find>LINESIZE</find>
-      <find>exit</find>
-      <find>alice</find>
-      <find>play</find>
-      <find>alice_strat</find>
-      <find>pl</find>
-      <find>init</find>
       <find>played</find>
       <find>newround</find>
       <find>SIZE</find>
@@ -126,6 +128,26 @@
       <find>remove_card</find>
       <find>intge</find>
       <find>new</find>
+      <find>numberDig</find>
+      <find>dugu</find>
+      <find>digits</find>
+      <find>duguts</find>
+      <find>number</find>
+      <find>numberDi</find>
+      <find>numberDigits</find>
+      <find>cardsPLayed</find>
+      <find>decode_played</find>
+      <find>p</find>
+      <find>cardPos</find>
+      <find>cardsStored</find>
+      <find>play</find>
+      <find>save_card</find>
+      <find>save</find>
+      <find>end_of</find>
+      <find>PLAYED</find>
+      <find>cardsFrom</find>
+      <find>cardsPlayed</find>
+      <find>got</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -149,18 +171,20 @@
         <option value="$PROJECT_DIR$/flow" />
         <option value="$PROJECT_DIR$/todo" />
         <option value="$PROJECT_DIR$/2310alice.h" />
-        <option value="$PROJECT_DIR$/Makefile" />
-        <option value="$PROJECT_DIR$/2310alice.c" />
-        <option value="$PROJECT_DIR$/shared.h" />
-        <option value="$PROJECT_DIR$/2310bob.c" />
-        <option value="$PROJECT_DIR$/shared.c" />
         <option value="$PROJECT_DIR$/2310hub.h" />
         <option value="$PROJECT_DIR$/2310hub.c" />
+        <option value="$PROJECT_DIR$/2310bob.c" />
+        <option value="$PROJECT_DIR$/Makefile" />
+        <option value="$PROJECT_DIR$/shared.h" />
+        <option value="$PROJECT_DIR$/2310alice.c" />
+        <option value="$PROJECT_DIR$/shared.c" />
       </list>
     </option>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1078" />
+    <option name="y" value="54" />
     <option name="width" value="1440" />
     <option name="height" value="900" />
   </component>
@@ -169,7 +193,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -181,6 +204,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -308,12 +332,14 @@
       <workItem from="1568865610892" duration="606000" />
       <workItem from="1568866558600" duration="17439000" />
       <workItem from="1568972593272" duration="258000" />
-      <workItem from="1568974744284" duration="814000" />
+      <workItem from="1568974744284" duration="1668000" />
+      <workItem from="1568977094543" duration="1352000" />
+      <workItem from="1569019208077" duration="5596000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="91005000" />
+    <option name="totallyTimeSpent" value="98807000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -325,10 +351,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <frame x="1078" y="54" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5444319" visible="true" weight="0.15450644" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5444319" visible="true" weight="0.16809729" />
       <window_info id="Structure" order="1" sideWeight="0.45556805" side_tool="true" weight="0.19098713" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -338,7 +364,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32920793" />
-      <window_info anchor="bottom" id="File Transfer" order="7" weight="0.15783133" />
+      <window_info anchor="bottom" id="File Transfer" order="7" weight="0.15717822" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" />
@@ -348,9 +374,9 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Remote Host" order="3" weight="0.3271605" />
+      <window_info anchor="right" id="Remote Host" order="3" weight="0.32689556" />
       <window_info anchor="right" id="make" order="4" weight="0.3297568" />
-      <window_info anchor="right" id="Database" order="5" />
+      <window_info anchor="right" id="Database" order="5" weight="0.3297568" />
     </layout>
     <layout-to-restore>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5444319" visible="true" weight="0.19098713" />
@@ -380,6 +406,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/2310alice.c</url>
+          <line>119</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/pipe.c" />
@@ -496,23 +533,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pipe2.c" />
-    <entry file="file://$PROJECT_DIR$/Makefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="3" column="35" selection-start-line="3" selection-start-column="35" selection-end-line="3" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/2310bob.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4">
-          <caret line="144" selection-start-line="144" selection-end-line="144" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/2310alice.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
@@ -520,47 +540,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/shared.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2079">
-          <caret line="99" column="5" selection-start-line="99" selection-start-column="5" selection-end-line="99" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/shared.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1827">
-          <caret line="87" column="3" selection-start-line="87" selection-start-column="3" selection-end-line="87" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/2310alice.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
-          <caret line="83" column="3" lean-forward="true" selection-start-line="83" selection-start-column="3" selection-end-line="83" selection-end-column="61" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/2310hub.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
+        <state relative-caret-position="-437">
+          <caret line="30" column="5" selection-start-line="30" selection-start-column="5" selection-end-line="30" selection-end-column="5" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/2310bob.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="162" column="47" selection-start-line="162" selection-start-column="47" selection-end-line="162" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/2310hub.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="147" column="39" selection-start-line="147" selection-start-column="39" selection-end-line="147" selection-end-column="39" />
+        <state relative-caret-position="-963">
+          <caret line="9" selection-start-line="9" selection-end-line="9" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="79" column="10" selection-start-line="79" selection-start-column="10" selection-end-line="79" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/2310alice.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="293">
+          <caret line="116" selection-start-line="116" selection-end-line="116" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shared.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="321" column="32" selection-start-line="321" selection-start-column="32" selection-end-line="321" selection-end-column="32" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

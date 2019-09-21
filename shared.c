@@ -9,6 +9,8 @@
 #include <time.h>
 #include "shared.h"
 #include <ctype.h>
+#include <math.h>
+
 //todo validate change.
 #define LINESIZE 80
 
@@ -117,6 +119,12 @@ void remove_card(PlayerGame *game, Card *card) {
 
 }
 
+void save_card(PlayerGame *game, Card *card) {
+    game->cardsStored[game->cardPos][0] = card->suit;
+    game->cardsStored[game->cardPos][1] = '.';
+    game->cardsStored[game->cardPos][2] = card->rank;
+    game->cardsStored[game->cardPos][3] = '\0';
+}
 /**
  * Function to see if there is a card in the lead suit.
  * @param game struct representing player's tracking of game.
@@ -296,6 +304,45 @@ int decode_newround(char *input, PlayerGame *game) {
     return DONE;
 }
 
+void decide_round_winner(PlayerGame *game) {
+    int rank = 0;
+    for (int i = 0; i < game->playerCount; i++) {
+        if (game->cardsStored[i][0] == game->leadSuit) {
+            //printf("\n %d %d %d", i, get_rank_integer(game->cardsStored[i][2]), rank);
+            if (get_rank_integer(game->cardsStored[i][2]) > rank) {
+                game->roundWinner = i;
+                rank = get_rank_integer(game->cardsStored[i][0]);
+            }
+        }
+    }
+}
+
+void player_end_of_round_output(PlayerGame *game) {
+    decide_round_winner(game);
+    fprintf(stderr, "Lead player=%d:", game->leadPlayer);
+    for (int i = 0; i < game->cardPos; i++) {
+        fprintf(stderr, " %s", game->cardsStored[i]);
+    }
+    fprintf(stderr, "\n");
+    game->dPlayedRound = 0;
+
+}
+
+/**
+ * Function to return how many digits there are in the supplied number.
+ * @param i - the number to get the digits of
+ * @return the number of digits.
+ */
+int number_digits(int i) {
+    if (i == 0) {
+        return 1;
+    }
+    int down = abs(i);
+    int log = log10(down);
+    int fl = floor(log);
+    return fl + 1;
+}
+
 /**
  * Function to decode the played message from stdin.
  * @param input - string representing message
@@ -331,7 +378,7 @@ int decode_played(char *input, PlayerGame *game) {
         game->orderPos++;
     }
     //todo is this an issue
-    game->cardsPlayed = malloc(game->handSize * game->playerCount *
+    game->cardsPlayed = malloc(game->handSize * game->playerCount * 2 *
                                sizeof(Card));
 
 
@@ -342,7 +389,9 @@ int decode_played(char *input, PlayerGame *game) {
                                     (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
         newCard.suit = input[0];
         newCard.rank = input[1];
-        game->cardsPlayed[game->cardPos++] = newCard;
+        save_card(game, &newCard);
+
+        game->cardPos += 1;
     } else {
         return show_player_message(MSGERR);
     }
@@ -352,6 +401,10 @@ int decode_played(char *input, PlayerGame *game) {
 
     if (justPlayed == game->leadPlayer) {
         game->leadSuit = newCard.suit;
+    }
+
+    if (justPlayed == (game->playerCount - 1)) {
+        player_end_of_round_output(game);
     }
 
     if ((justPlayed + 1) == game->myID) {
@@ -655,10 +708,18 @@ int check_expected(PlayerGame *game, char *got, int currentPlayer) {
     return DONE;
 }
 
+void malloc_card_storage(PlayerGame *game) {
+    for (int j = 0; j < game->playerCount; j++) {
+        game->cardsStored[j] = malloc(4 * sizeof(char));
+    }
+}
+
 void init_expected(PlayerGame *game) {
     game->current = "start";
     game->round = 0;
     game->cardPos = 0;
+    game->cardsStored = (char **) malloc(game->playerCount * sizeof(char*));
+    malloc_card_storage(game);
     game->order = malloc(sizeof(int) * (game->playerCount - 1));
     game->orderPos = 0;
     game->dPlayedRound = 0;
@@ -666,12 +727,12 @@ void init_expected(PlayerGame *game) {
     for (int i = 0; i < game->playerCount; i++) {
         game->dPlayerNumber[i] = 0;
     }
-    for (int i = 0; i < game->playerCount; i++) {
+    int i;
+    for (i = 0; i < game->playerCount; i++) {
         game->order[i] = i;
         //printf(">>%d", game->order[i]);
     }
-
-
+    game->largestPlayer = i;
 }
 
 /* end shared */

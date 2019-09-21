@@ -35,20 +35,6 @@ Status show_message(Status s) {
     return s;
 }
 
-/**
- * Function to return how many digits there are in the supplied number.
- * @param i - the number to get the digits of
- * @return the number of digits.
- */
-int numberDigits (int i) {
-    if (i == 0) {
-        return 1;
-    }
-    int down = abs(i);
-    int log = log10(down);
-    int fl = floor(log);
-    return fl + 1;
-}
 
 /**
  * Function to perform forking of players
@@ -86,10 +72,10 @@ int create_players(Game *game, char** argv) {
 
             char* args[6];
             args[0] = argv[i + 3];
-            args[1] = malloc((numberDigits(game->playerCount) + 1) * sizeof(int));
-            args[2] = malloc((numberDigits(i) + 1) * sizeof(int));
-            args[3] = malloc((numberDigits(game->threshold) + 1) * sizeof(int));
-            args[4] = malloc((numberDigits(game->numCardsToDeal) + 1) * sizeof(int));
+            args[1] = malloc((number_digits(game->playerCount) + 1) * sizeof(int));
+            args[2] = malloc((number_digits(i) + 1) * sizeof(int));
+            args[3] = malloc((number_digits(game->threshold) + 1) * sizeof(int));
+            args[4] = malloc((number_digits(game->numCardsToDeal) + 1) * sizeof(int));
             sprintf(args[1], "%d", game->playerCount);
             sprintf(args[2], "%d", i);
             sprintf(args[3], "%d", game->threshold);
@@ -140,7 +126,7 @@ int check_players(Game *game) {
  * @param argv - arguments supplied on command line.
  * @return 0 - normal exit after game
  *         3 - error parsing deck
- *         4 - error parsing deck
+ *         4 - less than P cards in deck.
  *         5 - error starting player
  *         6 - EOF from player
  *         7 - invalid player message
@@ -168,7 +154,13 @@ int new_game(int argc, char** argv) {
     return show_message(game_loop(&game));
 }
 
-
+/**
+ * Function to handle the dealing of cards and sending of card message to
+ * players
+ * @param game struct representing player's tracking of game.
+ * @param id - ID of the player to send the cards to.
+ * @return 0 when done.
+ */
 int deal_card_to_player(Game *game, int id) {
     Card cardsForPlayer[game->numCardsToDeal];
     int j;
@@ -182,18 +174,18 @@ int deal_card_to_player(Game *game, int id) {
 
     //HANDx,C1,C2,C3...,Cn
     int cardNo = game->numCardsToDeal;
-    char* hand = malloc((4 + numberDigits(cardNo) + cardNo + (cardNo * 2) + 1)
+    char* hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 1)
             * sizeof(char));
     strcpy(hand, "HAND");
     char insertNumber[cardNo];
     sprintf(insertNumber, "%d", cardNo);
     int i;
-    for (i = 4; i < (numberDigits(cardNo) + 4); i++) {
+    for (i = 4; i < (number_digits(cardNo) + 4); i++) {
         hand[i] = insertNumber[i - 4];
     }
     int pos = 0;
-    for (i = i; i < (cardNo + (cardNo * 2) + numberDigits(cardNo) + 3); i++ ) {
-        if ((i - (4 + numberDigits(cardNo))) % 3 == 0) {
+    for (i = i; i < (cardNo + (cardNo * 2) + number_digits(cardNo) + 3); i++ ) {
+        if ((i - (4 + number_digits(cardNo))) % 3 == 0) {
             // comma
             hand[i] = ',';
         } else {
@@ -207,8 +199,16 @@ int deal_card_to_player(Game *game, int id) {
 //    printf("%s\n", hand);
     fprintf(game->players[id].fileIn, hand);
     fflush(game->players[id].fileIn);
+    return DONE;
 }
 
+/**
+ * //fixme check return status'
+ * Function to handle the overarching game loop.
+ * @param game struct representing player's tracking of game.
+ * @return 0 - normal exit
+ *         9 - received SIGHUP
+ */
 int game_loop(Game *game) {
     // setup SIGHUP detection
     struct sigaction sa_sighup;
@@ -249,6 +249,16 @@ int game_loop(Game *game) {
     return OK;
 }
 
+/**
+ * Function to handle the parsing of command line arguments
+ * @param argc - number of arguments supplied
+ * @param argv - arguments supplied at command line.
+ * @param game struct representing player's tracking of game.
+ * @return 0 - all ok
+ *         2 - error in threshold count
+ *         3 - deck error
+ *         4 - less than P cards in deck.
+ */
 int parse(int argc, char** argv, Game *game) {
     //   0      1       2       3        4
     //2310hub deck threshold player0 {player1}
@@ -301,6 +311,13 @@ int parse(int argc, char** argv, Game *game) {
     return OK;
 }*/
 
+/**
+ * Function to handle the reading deck contents.
+ * @param deckName - name of deck from command line
+ * @param game struct representing player's tracking of game.
+ * @return 3 - error parsing the deck
+ *         4 - less than P cards in deck.
+ */
 int handler_deck(char* deckName, Game *game) {
     FILE* f = fopen(deckName, "r");
     if (!f) {
@@ -319,6 +336,12 @@ int handler_deck(char* deckName, Game *game) {
     return result;
 }
 
+/**
+ * Function to check format of card read in from deck
+ * @param card - string representing card.
+ * @return 0 - no errors
+ *         3 - error in card.
+ */
 int check_string(char *card) {
     //if over 2 char
     if (strlen(card) > 2) {
@@ -356,6 +379,13 @@ int check_string(char *card) {
     return OK;
 }
 
+/**
+ * Function to handle running of deck loading.
+ * @param input - deck file to read from.
+ * @param deck - deck to read in to.
+ * @return 0 - no errors
+ *         3 - error in deck file formatting
+ */
 int load_deck(FILE* input, Deck* deck) {
     int position = 0;
     while (1) {

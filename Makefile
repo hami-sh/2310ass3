@@ -25,13 +25,13 @@ debug: clean $(TARGETS)
 	$(CC) $(CFLAGS) 2310hub.c shared.o -lm -o 2310hub
 
 2310alice: 2310alice.c shared.o
-	$(CC) $(CFLAGS) 2310alice.c shared.o -o 2310alice
+	$(CC) $(CFLAGS) 2310alice.c shared.o -lm -o 2310alice
 
 2310bob: 2310bob.c shared.o
-	$(CC) $(CFLAGS) 2310bob.c shared.o -o 2310bob
+	$(CC) $(CFLAGS) 2310bob.c shared.o -lm -o 2310bob
 
 shared.o: shared.c
-	$(CC) $(CFLAGS) -c shared.c
+	$(CC) $(CFLAGS) -c -lm shared.c
 
 #follow below for linking
 #client: client.c shared.o
