@@ -296,6 +296,15 @@ int decode_newround(char *input, PlayerGame *game) {
 
     game->leadPlayer = atoi(leadStr);
 
+    if (game->firstRound) {
+        game->firstRound = 0;
+        if (game->leadPlayer != 0) {
+            return show_player_message(MSGERR);
+        }
+    }
+    if (game->leadPlayer >= game->playerCount) {
+        return show_player_message(MSGERR);
+    }
     // make move!
     if (game->myID == 0) {
         game->player_strategy(game);
@@ -717,6 +726,7 @@ void malloc_card_storage(PlayerGame *game) {
 void init_expected(PlayerGame *game) {
     game->current = "start";
     game->round = 0;
+    game->firstRound = 1;
     game->cardPos = 0;
     game->cardsStored = (char **) malloc(game->playerCount * sizeof(char*));
     malloc_card_storage(game);

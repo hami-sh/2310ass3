@@ -84,6 +84,7 @@ typedef struct {
     char **cardsStored;
     int largestPlayer;
     int roundWinner;
+    int firstRound; // 0 if not, 1 if so.
 
 } PlayerGame;
 

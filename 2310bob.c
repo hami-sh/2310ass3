@@ -30,6 +30,8 @@ int bob_lead_move(PlayerGame *game) {
             suits++;
         }
     }
+    save_card(game, &play);
+    game->cardPos += 1;
     printf("PLAY%c%c\n", play.suit, play.rank);
     remove_card(game, &play);
     return DONE;
@@ -37,7 +39,7 @@ int bob_lead_move(PlayerGame *game) {
 
 int bob_D_card_move(PlayerGame *game) {
     if (card_in_lead_suit(game) == DONE) {
-        printf("::\n");
+        //printf("::\n");
         char rank = 0;
         Card play;
         play.rank = -1;
@@ -53,11 +55,13 @@ int bob_D_card_move(PlayerGame *game) {
                 }
             }
         }
+        save_card(game, &play);
+        game->cardPos += 1;
         printf("PLAY%c%c\n", play.suit, play.rank);
         remove_card(game, &play);
         return DONE;
     } else {
-        printf("}}\n");
+        //printf("}}\n");
         char *suits = "SCHD";
         Card play;
         play.rank = -1;
@@ -76,6 +80,8 @@ int bob_D_card_move(PlayerGame *game) {
                 suits++;
             }
         }
+        save_card(game, &play);
+        game->cardPos += 1;
         printf("PLAY%c%c\n", play.suit, play.rank);
         remove_card(game, &play);
         return DONE;
@@ -109,6 +115,8 @@ int bob_default_move(PlayerGame *game) {
             suits++;
         }
     }
+    save_card(game, &play);
+    game->cardPos += 1;
     printf("PLAY%c%c\n", play.suit, play.rank);
     remove_card(game, &play);
     return DONE;
@@ -150,6 +158,7 @@ int bob_strategy(PlayerGame *game) {
     if (card_in_lead_suit(game) == DONE) {
         //printf("card in lead suit\n");
         Card play = lowest_in_suit(game, game->leadSuit);
+        save_card(game, &play);
         printf("PLAY%c%c\n", play.suit, play.rank);
         remove_card(game, &play);
         return DONE;
