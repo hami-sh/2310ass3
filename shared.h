@@ -85,6 +85,7 @@ typedef struct {
     int largestPlayer;
     int roundWinner;
     int firstRound; // 0 if not, 1 if so.
+    int lastPlayer;
 
 } PlayerGame;
 

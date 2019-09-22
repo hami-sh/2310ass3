@@ -67,8 +67,8 @@ int create_players(Game *game, char** argv) {
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO); //send stdout child to write of pipeB
 
             //todo DEBUG REPLACE
-//            int dev = open("/dev/null", O_WRONLY);
-//            dup2(dev, 2); // supress stderr of child
+            int dev = open("/dev/null", O_WRONLY);
+            dup2(dev, 2); // supress stderr of child
 
 
             char* args[6];
@@ -207,16 +207,40 @@ int deal_card_to_player(Game *game, int id) {
 void newround_msg(Game *game) {
     if (game->firstRound) {
         for (int i = 0; i < game->playerCount; i++) {
-            fprintf(game->players[i].fileIn, "NEWROUND0\n");
+            fprintf(game->players[i].fileIn, "NEWROUND%d\n", game->leadPlayer);
             fflush(game->players[i].fileIn);
         }
+    }
+    if (game->leadPlayer != 0) {
+        game->lastPlayer = game->leadPlayer - 1;
     } else {
-        //based on lead player
+        game->lastPlayer = game->playerCount - 1;
     }
     next_state(game);
 }
 
 void calculate_scores(Game *game) {
+    int rank = 0;
+    int winner = -1;
+    int dCardCount = 0;
+    for (int i = 0; i < game->playerCount; i++) {
+        Card playedCard = game->cardsByRound[game->roundNumber][i];
+        if (playedCard.suit == 'D') {
+            dCardCount++;
+        }
+        if (game->leadSuit == playedCard.suit) {
+            if (get_rank_integer(playedCard.rank) >= rank) {
+                rank = get_rank_integer(playedCard.rank);
+                winner = i;
+            }
+        }
+        printf("%c%c ", playedCard.suit, playedCard.rank);
+    }
+    game->leadPlayer = winner;
+    game->nScore[winner] += 1;
+    game->dScore[winner] += dCardCount;
+    printf("----(%d %d %d)----\n", winner, game->nScore[winner], game->dScore[winner]);
+
 
 }
 
@@ -224,8 +248,10 @@ void calculate_scores(Game *game) {
 int send_and_receive(Game *game) {
     int playerMove = game->leadPlayer;
     bool go = true;
+    int numberPlays = 0;
     while (go) {
         // get current player move
+//        printf("HUB READING: (%d)\n", playerMove);
         const short buffSize = (short)log10(INT_MAX) + 3; // +2 to allow for \n\0
         char buffer[buffSize];
         if (!fgets(buffer, buffSize - 1, game->players[playerMove].fileOut)
@@ -240,6 +266,14 @@ int send_and_receive(Game *game) {
         if (playerMove == game->leadPlayer) {
             game->leadSuit = buffer[4];
         }
+
+        Card playedCard;
+        playedCard.suit = buffer[4];
+        playedCard.rank = buffer[5];
+        game->cardsByRound[game->roundNumber][playerMove] = playedCard;
+        game->cardsByRoundOrderPlayed[game->roundNumber][numberPlays] = playedCard;
+
+
         // send move to other players
         char* playedMsg = malloc(7 + number_digits(playerMove) + 2);
         sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4], buffer[5]);
@@ -250,9 +284,15 @@ int send_and_receive(Game *game) {
             }
         }
         playerMove += 1; // move to next player
-        if (playerMove == game->playerCount) {
+        numberPlays += 1;
+//        printf("%dvs%d %d\n", game->lastPlayer, playerMove, numberPlays);
+        if (numberPlays == game->playerCount) {
             go = false;
             break;
+        } else if (numberPlays != game->playerCount) {
+            if (playerMove == game->playerCount) {
+                playerMove = 0;
+            }
         }
     }
     return OK;
@@ -260,10 +300,37 @@ int send_and_receive(Game *game) {
 
 void end_round_output(Game *game) {
     printf("ENDROUND\n");
+    printf("Lead player=%d\n", game->leadPlayer);
+    printf("Cards=");
+    for (int i = 0; i < game->playerCount; i++) {
+        Card playedCard = game->cardsByRoundOrderPlayed[game->roundNumber][i];
+        if (i < game->playerCount - 1) {
+            printf("%c.%c ", playedCard.suit, playedCard.rank);
+        } else {
+            printf("%c.%c", playedCard.suit, playedCard.rank);
+        }
+    }
+    printf("\n");
+    calculate_scores(game);
 }
 
 void end_game_output(Game *game) {
+    for (int i = 0; i < game->playerCount; i++) {
+        if (game->dScore[i] >= game->threshold) {
+            game->finalScores[i] = game->nScore[i] + game->dScore[i];
+        } else {
+            game->finalScores[i] = game->nScore[i] - game->dScore[i];
+        }
+    }
     printf("ENDGAME\n");
+    for (int i = 0; i < game->playerCount; i++) {
+        if (i != game->playerCount - 1) {
+            printf("%d:%d ", i, game->finalScores[i]);
+        } else {
+            printf("%d:%d", i, game->finalScores[i]);
+        }
+    }
+    printf("\n");
 }
 
 /**
@@ -516,10 +583,20 @@ int load_deck(FILE* input, Deck* deck) {
 void init_state(Game *game) {
     game->state = "start";
     game->cardsByRound = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
-    for (int i = 0; i < 20; i++) {
+    game->cardsByRoundOrderPlayed = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
+    for (int i = 0; i < game->numCardsToDeal; i++) {
+        game->cardsByRoundOrderPlayed[i] = (Card *)malloc(sizeof(Card) * game->playerCount);
         game->cardsByRound[i] = (Card *)malloc(sizeof(Card) * game->playerCount);
     }
 
+    game->nScore = (int *) malloc(sizeof(int) * game->playerCount);
+    game->dScore = (int *) malloc(sizeof(int) * game->playerCount);
+    game->finalScores = (int *) malloc(sizeof(int) * game->playerCount);
+    for (int i = 0; i < game->playerCount; i++) {
+        game->nScore[i] = 0;
+        game->dScore[i] = 0;
+        game->finalScores[i] = 0;
+    }
 }
 
 void set_state(Game *game, char *state) {

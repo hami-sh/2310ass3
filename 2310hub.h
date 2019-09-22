@@ -25,6 +25,11 @@ typedef struct {
     int roundNumber; // 1 based.
     int firstRound; //0 if not, 1 if so.
     Card **cardsByRound;
+    Card **cardsByRoundOrderPlayed;
+    int *nScore;
+    int *dScore;
+    int *finalScores;
+    int lastPlayer;
 } Game;
 
 typedef enum {

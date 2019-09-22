@@ -71,8 +71,6 @@ char validate_card(char c) {
 }
 
 
-
-
 /*typedef struct {
     Card hand[60];
     int handSize;
@@ -85,6 +83,30 @@ char validate_card(char c) {
     int expected;
 } PlayerGame;*/
 
+
+void set_player(PlayerGame *game, int player) {
+    game->orderPos = player;
+}
+
+int next_player(PlayerGame *game) {
+    if (game->orderPos == game->playerCount - 1) {
+        fprintf(stderr, "(%d) %d : %d", game->myID, game->orderPos, game->playerCount - 1);
+        fprintf(stderr, "reset\n");
+        game->orderPos = 0;
+    } else {
+        fprintf(stderr, "(%d) inc\n", game->myID);
+        game->orderPos++;
+    }
+    return game->orderPos;
+}
+
+int peek_next_player(PlayerGame *game) {
+    if (game->orderPos == game->playerCount - 1) {
+        return 0;
+    } else {
+        return game->orderPos + 1;
+    }
+}
 
 /* SHARED PLAYER SECTION */
 /**
@@ -307,10 +329,24 @@ int decode_newround(char *input, PlayerGame *game) {
         return show_player_message(MSGERR);
     }
     // make move!
-    if (game->myID == 0) {
+    if (game->myID == game->leadPlayer) {
+        fprintf(stderr, "NEWROUND: %d MOVED\n", game->myID);
         game->player_strategy(game);
-        game->orderPos += 1;
+        if (game->myID == game->playerCount - 1) {
+            game->orderPos = game->myID;
+        }
+        next_player(game);
+    } else {
+        set_player(game, game->leadPlayer);
     }
+
+    if (game->leadPlayer != 0) {
+        game->lastPlayer = game->leadPlayer - 1;
+    } else {
+        game->lastPlayer = game->playerCount - 1;
+    }
+
+    fprintf(stderr, "NEWROUND next player:: %d\n", game->orderPos);
     return DONE;
 }
 
@@ -376,14 +412,20 @@ int decode_played(char *input, PlayerGame *game) {
     char *playedID = malloc(i * sizeof(char));
     strncpy(playedID, input, i);
     int justPlayed = atoi(playedID);
-    //printf("-<<%d>><%d>><<%d>>-\n", justPlayed, game->order[game->playerCount - 1], game->playerCount-1);
-    if (justPlayed != game->order[game->orderPos]) {
-        return show_player_message(MSGERR);
-    } else if (justPlayed == (game->playerCount - 1)) {
-        //printf("RESET{}\n");
+
+//    if (justPlayed != game->order[game->orderPos]) {
+//        fprintf(stderr, "%d broke %dvs%d\n", game->myID, justPlayed, game->orderPos);
+//        return show_player_message(MSGERR);
+    if (justPlayed == (game->playerCount - 1)) {
+        fprintf(stderr, "(%d) %d just played, reset to 0\n", game->myID, justPlayed);
         game->orderPos = 0;
-        set_expected(game, "HAND");
+        if (game->lastPlayer == justPlayed) {
+            set_expected(game, "HAND");
+        } else {
+            set_expected(game, "PLAYED");
+        }
     } else {
+        fprintf(stderr, "(%d) inc\n", game->myID);
         game->orderPos++;
     }
     //todo is this an issue
@@ -412,12 +454,15 @@ int decode_played(char *input, PlayerGame *game) {
         game->leadSuit = newCard.suit;
     }
 
-    if (justPlayed == (game->playerCount - 1)) {
+    if (justPlayed == game->lastPlayer) {
         player_end_of_round_output(game);
+        return DONE;
     }
-    if ((justPlayed + 1) == game->myID) {
+
+    fprintf(stderr, "%d\n", peek_next_player(game));
+    if (game->orderPos == game->myID) {
         game->player_strategy(game);
-        game->orderPos += 1;
+        next_player(game);
     }
     if (newCard.suit == 'D') {
         game->dPlayedRound++;
@@ -490,6 +535,7 @@ int process_input(char *input, PlayerGame *game) {
         dest[6] = 0;
         int msgCheck = check_expected(game, dest, game->playerMove);
         if (msgCheck != 0) {
+            fprintf(stderr, "BRUH\n");
             return msgCheck;
         }
         int decode = decode_played(input, game);
@@ -523,6 +569,7 @@ int cont_read_stdin(PlayerGame *game) {
             fgets(input, BUFSIZ, stdin);
             continue;
         }
+        fprintf(stderr, "(%d) READ: %s", game->myID, input);
         int processed = process_input(input, game);
         if (processed != 0) {
             return processed;
@@ -669,7 +716,7 @@ void set_expected(PlayerGame *game, char *set) {
 }
 
 int check_expected(PlayerGame *game, char *got, int currentPlayer) {
-//    printf("state: %s got:%s\n", game->current, got);
+//    fprintf(stderr, "state: %s got:%s\n", game->current, got);
     if (strcmp(game->current, "start") == 0) {
         /* BEGINNING STATE */
         // we expect HAND - we want to start the game
@@ -702,10 +749,11 @@ int check_expected(PlayerGame *game, char *got, int currentPlayer) {
             return show_player_message(MSGERR);
         }
         if (game->playerCount - 1 == currentPlayer) {
-            // all players have moved, go to new round.
-//            printf("RESET\n");
-//            fflush(stdout);
-            set_expected(game, "HAND");
+            if (game->lastPlayer == currentPlayer) {
+                set_expected(game, "HAND");
+            } else {
+                set_expected(game, "PLAYED");
+            }
             return DONE;
 
         }
