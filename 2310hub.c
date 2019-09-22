@@ -22,16 +22,16 @@ bool sighup = false;
  * @return error status.
  */
 Status show_message(Status s) {
-    const char* messages[] = {"",
-             "Usage: 2310hub deck threshold player0 {player1}\n",
-             "Invalid threshold\n",
-             "Deck error\n",
-             "Not enough cards\n",
-             "Player error\n",
-             "Player EOF\n",
-             "Invalid message\n",
-             "Invalid card choice\n",
-             "Ended due to signal\n"};
+    const char *messages[] = {"",
+                              "Usage: 2310hub deck threshold player0 {player1}\n",
+                              "Invalid threshold\n",
+                              "Deck error\n",
+                              "Not enough cards\n",
+                              "Player error\n",
+                              "Player EOF\n",
+                              "Invalid message\n",
+                              "Invalid card choice\n",
+                              "Ended due to signal\n"};
     fputs(messages[s], stderr);
     return s;
 }
@@ -39,12 +39,12 @@ Status show_message(Status s) {
 
 /**
  * Function to perform forking of players
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @param argv arguments from command line.
  * @return 0 - no errors
  *         5 - error starting the players
  */
-int create_players(Game *game, char** argv) {
+int create_players(Game *game, char **argv) {
     game->pidChildren = malloc(game->playerCount * sizeof(int));
     game->players = malloc(game->playerCount * sizeof(Player));
     game->numCardsToDeal = floor((game->deck.count / game->playerCount));
@@ -71,7 +71,7 @@ int create_players(Game *game, char** argv) {
             dup2(dev, 2); // supress stderr of child
 
 
-            char* args[6];
+            char *args[6];
             args[0] = argv[i + 3];
             args[1] = malloc((number_digits(game->playerCount) + 1) * sizeof(int));
             args[2] = malloc((number_digits(i) + 1) * sizeof(int));
@@ -106,7 +106,7 @@ int create_players(Game *game, char** argv) {
 
 /**
  * Function to go through each player and read to check if we get "@"
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @return 0 if ok
  *         5 if player cannot be found.
  */
@@ -134,7 +134,7 @@ int check_players(Game *game) {
  *         8 - invalid card choice from player
  *         9 - received SIGHUP signal.
  */
-int new_game(int argc, char** argv) {
+int new_game(int argc, char **argv) {
     Game game;
     game.firstRound = 1;
     game.leadPlayer = 0;
@@ -160,7 +160,7 @@ int new_game(int argc, char** argv) {
 /**
  * Function to handle the dealing of cards and sending of card message to
  * players
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @param id - ID of the player to send the cards to.
  * @return 0 when done.
  */
@@ -177,8 +177,8 @@ int deal_card_to_player(Game *game, int id) {
 
     //HANDx,C1,C2,C3...,Cn
     int cardNo = game->numCardsToDeal;
-    char* hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 2)
-            * sizeof(char));
+    char *hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 2)
+                        * sizeof(char));
     strcpy(hand, "HAND");
     char insertNumber[cardNo];
     sprintf(insertNumber, "%d", cardNo);
@@ -187,7 +187,7 @@ int deal_card_to_player(Game *game, int id) {
         hand[i] = insertNumber[i - 4];
     }
     int pos = 0;
-    for (i = i; i < (cardNo + (cardNo * 2) + number_digits(cardNo) + 3); i++ ) {
+    for (i = i; i < (cardNo + (cardNo * 2) + number_digits(cardNo) + 3); i++) {
         if ((i - (4 + number_digits(cardNo))) % 3 == 0) {
             // comma
             hand[i] = ',';
@@ -204,6 +204,10 @@ int deal_card_to_player(Game *game, int id) {
     return DONE;
 }
 
+/**
+ * Function to handle the production of a new round message sent to all players
+ * @param game struct representing hub's tracking of game.
+ */
 void newround_msg(Game *game) {
     if (game->firstRound) {
         for (int i = 0; i < game->playerCount; i++) {
@@ -219,6 +223,10 @@ void newround_msg(Game *game) {
     next_state(game);
 }
 
+/**
+ * Function to handle the calculation of scores at the end of each round.
+ * @param game struct representing hub's tracking of game.
+ */
 void calculate_scores(Game *game) {
     int rank = 0;
     int winner = -1;
@@ -244,7 +252,12 @@ void calculate_scores(Game *game) {
 
 }
 
-
+/**
+ * Function to handle the sending of messages to the players, along with the
+ * reception of messages too from said players.
+ * @param game struct representing hub's tracking of game.
+ * @return 0 when complete
+ */
 int send_and_receive(Game *game) {
     int playerMove = game->leadPlayer;
     bool go = true;
@@ -252,7 +265,7 @@ int send_and_receive(Game *game) {
     while (go) {
         // get current player move
 //        printf("HUB READING: (%d)\n", playerMove);
-        const short buffSize = (short)log10(INT_MAX) + 3; // +2 to allow for \n\0
+        const short buffSize = (short) log10(INT_MAX) + 3; // +2 to allow for \n\0
         char buffer[buffSize];
         if (!fgets(buffer, buffSize - 1, game->players[playerMove].fileOut)
             || feof(game->players[playerMove].fileOut)
@@ -275,7 +288,7 @@ int send_and_receive(Game *game) {
 
 
         // send move to other players
-        char* playedMsg = malloc(7 + number_digits(playerMove) + 2);
+        char *playedMsg = malloc(7 + number_digits(playerMove) + 2);
         sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4], buffer[5]);
         for (int i = 0; i < game->playerCount; i++) {
             if (i != playerMove) {
@@ -295,9 +308,14 @@ int send_and_receive(Game *game) {
             }
         }
     }
-    return OK;
+    return DONE;
 }
 
+/**
+ * Function to handle the formatted message sent to stdout at the end of each
+ * round.
+ * @param game struct representing hub's tracking of game.
+ */
 void end_round_output(Game *game) {
 //    printf("ENDROUND\n");
     printf("Lead player=%d\n", game->leadPlayer);
@@ -314,6 +332,11 @@ void end_round_output(Game *game) {
     calculate_scores(game);
 }
 
+/**
+ * Function to handle the formatted message sent to stdout at the end of the
+ * game.
+ * @param game struct representing hub's tracking of game.
+ */
 void end_game_output(Game *game) {
     for (int i = 0; i < game->playerCount; i++) {
         if (game->dScore[i] >= game->threshold) {
@@ -336,16 +359,16 @@ void end_game_output(Game *game) {
 /**
  * //fixme check return status'
  * Function to handle the overarching game loop.
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @return 0 - normal exit
  *         9 - received SIGHUP
  */
 int game_loop(Game *game) {
     // setup SIGHUP detection
-    struct sigaction sa_sighup;
-    sa_sighup.sa_handler = handle_sighup;
-    sa_sighup.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &sa_sighup, 0);
+    struct sigaction saSighup;
+    saSighup.sa_handler = handle_sighup;
+    saSighup.sa_flags = SA_RESTART;
+    sigaction(SIGHUP, &saSighup, 0);
 
 //    while (true) {
     while (!sighup) {
@@ -400,17 +423,17 @@ int game_loop(Game *game) {
  * Function to handle the parsing of command line arguments
  * @param argc - number of arguments supplied
  * @param argv - arguments supplied at command line.
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @return 0 - all ok
  *         2 - error in threshold count
  *         3 - deck error
  *         4 - less than P cards in deck.
  */
-int parse(int argc, char** argv, Game *game) {
+int parse(int argc, char **argv, Game *game) {
     //   0      1       2       3        4
     //2310hub deck threshold player0 {player1}
 
-    char* thresholdArg = malloc(sizeof(char) * strlen(argv[2]));
+    char *thresholdArg = malloc(sizeof(char) * strlen(argv[2]));
     for (int s = 0; s < strlen(argv[2]); s++) {
         //check if floating point
         if (argv[2][s] == '.') {
@@ -461,12 +484,12 @@ int parse(int argc, char** argv, Game *game) {
 /**
  * Function to handle the reading deck contents.
  * @param deckName - name of deck from command line
- * @param game struct representing player's tracking of game.
+ * @param game struct representing hub's tracking of game.
  * @return 3 - error parsing the deck
  *         4 - less than P cards in deck.
  */
-int handler_deck(char* deckName, Game *game) {
-    FILE* f = fopen(deckName, "r");
+int handler_deck(char *deckName, Game *game) {
+    FILE *f = fopen(deckName, "r");
     if (!f) {
         return show_message(BADDECKFILE);
     }
@@ -533,7 +556,7 @@ int check_string(char *card) {
  * @return 0 - no errors
  *         3 - error in deck file formatting
  */
-int load_deck(FILE* input, Deck* deck) {
+int load_deck(FILE *input, Deck *deck) {
     int position = 0;
     while (1) {
         char *card = malloc(sizeof(char) * 4);
@@ -548,7 +571,7 @@ int load_deck(FILE* input, Deck* deck) {
                     return show_message(BADDECKFILE);
                 }
                 // if we are over 60 (max card number - no duplicates)
-                if (atoi(card) > 60){
+                if (atoi(card) > 60) {
                     return show_message(BADDECKFILE);
                 }
                 deck->count = atoi(card);
@@ -565,7 +588,7 @@ int load_deck(FILE* input, Deck* deck) {
             Card newCard;
             newCard.suit = card[0];
             newCard.rank = card[1];
-            deck->contents[position-1] = newCard;
+            deck->contents[position - 1] = newCard;
         }
         position++;
     }
@@ -585,8 +608,8 @@ void init_state(Game *game) {
     game->cardsByRound = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
     game->cardsByRoundOrderPlayed = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
     for (int i = 0; i < game->numCardsToDeal; i++) {
-        game->cardsByRoundOrderPlayed[i] = (Card *)malloc(sizeof(Card) * game->playerCount);
-        game->cardsByRound[i] = (Card *)malloc(sizeof(Card) * game->playerCount);
+        game->cardsByRoundOrderPlayed[i] = (Card *) malloc(sizeof(Card) * game->playerCount);
+        game->cardsByRound[i] = (Card *) malloc(sizeof(Card) * game->playerCount);
     }
 
     game->nScore = (int *) malloc(sizeof(int) * game->playerCount);
@@ -672,7 +695,7 @@ void handle_sighup(int s) {
     sighup = true;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     // 2310hub deck threshold player0 player 1...
     if (argc >= 5) {
         return new_game(argc, argv);

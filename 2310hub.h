@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
 
 #ifndef HUB_H
 #define HUB_H
@@ -21,7 +21,7 @@ typedef struct {
     int numCardsToDeal;
     pid_t *pidChildren;
 
-    char* state;
+    char *state;
     int roundNumber; // 1 based.
     int firstRound; //0 if not, 1 if so.
     Card **cardsByRound;
@@ -36,7 +36,7 @@ typedef enum {
     OK = 0,
     LESS4ARGS = 1,
     THRESHOLD = 2,
-     BADDECKFILE = 3,
+    BADDECKFILE = 3,
     SHORTDECK = 4,
     PLAYERSTART = 5,
     PLAYEREOF = 6,

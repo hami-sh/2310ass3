@@ -152,7 +152,7 @@ int bob_strategy(PlayerGame *game) {
 
     //D card move
     if ((player_won_over_threshold(game) == 1) &&
-            (d_cards_in_round(game) == 1)) {
+        (d_cards_in_round(game) == 1)) {
         //printf("D move\n");
         bob_D_card_move(game);
         return DONE;
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
         init_expected(&game);
         fprintf(stdout, "@");
         fflush(stdout);
-        game.player_strategy = bob_strategy;
+        game.playerStrategy = bob_strategy;
         return cont_read_stdin(&game);
     } else {
         return show_player_message(ARGERR);

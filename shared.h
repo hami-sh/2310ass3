@@ -2,17 +2,6 @@
 
 #ifndef SHARED_H
 #define SHARED_H
-//todo validate change.
-
-char validate_hand(char *str);
-
-char validate_newround(char *str);
-
-char validate_played(char *str);
-
-char validate_gameover(char *str);
-
-char validate_play(char *str);
 
 char validate_card(char c);
 
@@ -77,7 +66,7 @@ typedef struct {
     Card *cardsPlayed;
     int cardPos;
 
-    int (*player_strategy)();
+    int (*playerStrategy)();
     int dPlayedRound;
     int *dPlayerNumber;
     char *cardsFromRound;
@@ -91,7 +80,7 @@ typedef struct {
 
 void save_card(PlayerGame *game, Card *card);
 
-int (*player_strategy)(PlayerGame *game);
+int (*playerStrategy)(PlayerGame *game);
 
 int number_digits(int i);
 

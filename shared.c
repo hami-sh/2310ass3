@@ -11,57 +11,13 @@
 #include <ctype.h>
 #include <math.h>
 
-//todo validate change.
 #define LINESIZE 80
 
-
-char validate_hand(char *str) {
-    return
-            str[0] == 'H' &&
-            str[1] == 'A' &&
-            str[2] == 'N' &&
-            str[3] == 'D';
-}
-
-char validate_newround(char *str) {
-    return
-            str[0] == 'N' &&
-            str[1] == 'E' &&
-            str[2] == 'W' &&
-            str[3] == 'R' &&
-            str[4] == 'O' &&
-            str[5] == 'U' &&
-            str[6] == 'N' &&
-            str[7] == 'D';
-}
-
-char validate_played(char *str) {
-    return
-            str[0] == 'P' &&
-            str[1] == 'L' &&
-            str[2] == 'A' &&
-            str[3] == 'Y' &&
-            str[4] == 'E' &&
-            str[5] == 'D';
-}
-
-char validate_gameover(char *str) {
-    return
-            str[0] == 'G' &&
-            str[1] == 'A' &&
-            str[2] == 'M' &&
-            str[3] == 'E' &&
-            str[4] == 'O' &&
-            str[5] == 'V' &&
-            str[6] == 'E' &&
-            str[7] == 'R';
-}
-
-char validate_play(char *str) {
-    return
-            str[0] == 'x';
-}
-
+/**
+ * Function to check if char supplied matches a suit.
+ * @param c - character to check
+ * @return 0 if doesnt match, 1 if it does.
+ */
 char validate_card(char c) {
     return
             c == 'S' ||
@@ -70,24 +26,20 @@ char validate_card(char c) {
             c == 'H';
 }
 
-
-/*typedef struct {
-    Card hand[60];
-    int handSize;
-    unsigned int current; // will be 0 - playerNumber
-    int myID;
-    int threshold;
-    int playerCount;
-    int leadPlayer;
-    char* next;
-    int expected;
-} PlayerGame;*/
-
-
+/**
+ * Function to set the next player expected to move.
+ * @param game
+ * @param player
+ */
 void set_player(PlayerGame *game, int player) {
     game->orderPos = player;
 }
 
+/**
+ * Function to increment to the next player that should move.
+ * @param game struct representing player's tracking of game.
+ * @return int - next player to move.
+ */
 int next_player(PlayerGame *game) {
     if (game->orderPos == game->playerCount - 1) {
 //        fprintf(stderr, "(%d) %d : %d", game->myID, game->orderPos, game->playerCount - 1);
@@ -100,15 +52,6 @@ int next_player(PlayerGame *game) {
     return game->orderPos;
 }
 
-int peek_next_player(PlayerGame *game) {
-    if (game->orderPos == game->playerCount - 1) {
-        return 0;
-    } else {
-        return game->orderPos + 1;
-    }
-}
-
-/* SHARED PLAYER SECTION */
 /**
  * Function to remove a card from the hand of a player.
  * @param game struct representing player's tracking of game.
@@ -147,6 +90,7 @@ void save_card(PlayerGame *game, Card *card) {
     game->cardsStored[game->cardPos][2] = card->rank;
     game->cardsStored[game->cardPos][3] = '\0';
 }
+
 /**
  * Function to see if there is a card in the lead suit.
  * @param game struct representing player's tracking of game.
@@ -305,11 +249,11 @@ int decode_newround(char *input, PlayerGame *game) {
     input += 8;
     input[strlen(input) - 1] = '\0';
     // get lead player
-    char *leadStr = malloc(strlen(input) * sizeof(char));
-    strncpy(leadStr, input, strlen(input));
+    char *leadPlayer = malloc(strlen(input) * sizeof(char));
+    strncpy(leadPlayer, input, strlen(input));
     int i;
-    for (i = 0; i < strlen(leadStr); i++) {
-        if (!isdigit(leadStr[i])) {
+    for (i = 0; i < strlen(leadPlayer); i++) {
+        if (!isdigit(leadPlayer[i])) {
             return show_player_message(MSGERR);
         }
     }
@@ -317,7 +261,7 @@ int decode_newround(char *input, PlayerGame *game) {
         return show_player_message(MSGERR);
     }
 
-    game->leadPlayer = atoi(leadStr);
+    game->leadPlayer = atoi(leadPlayer);
 
     if (game->firstRound) {
         game->firstRound = 0;
@@ -331,7 +275,7 @@ int decode_newround(char *input, PlayerGame *game) {
     // make move!
     if (game->myID == game->leadPlayer) {
 //        fprintf(stderr, "NEWROUND: %d MOVED\n", game->myID);
-        game->player_strategy(game);
+        game->playerStrategy(game);
         if (game->myID == game->playerCount - 1) {
             game->orderPos = game->myID;
         }
@@ -461,7 +405,7 @@ int decode_played(char *input, PlayerGame *game) {
 
 //    fprintf(stderr, "%d\n", peek_next_player(game));
     if (game->orderPos == game->myID) {
-        game->player_strategy(game);
+        game->playerStrategy(game);
         next_player(game);
     }
     if (newCard.suit == 'D') {
@@ -505,7 +449,7 @@ int extract_last_player(char *input) {
 
 int process_input(char *input, PlayerGame *game) {
     char *dest = malloc(sizeof(char) * strlen(input));
-    if (validate_hand(input)) {
+    if (strncmp(input, "HAND", 4) == 0) {
         strncpy(dest, input, 4);
         dest[4] = 0;
         int msgCheck = check_expected(game, dest, game->playerMove);
@@ -516,7 +460,7 @@ int process_input(char *input, PlayerGame *game) {
         if (decode != 0) {
             return decode;
         }
-    } else if (validate_newround(input)) {
+    } else if (strncmp(input, "NEWROUND", 8) == 0) {
         game->expected = 0;
         strncpy(dest, input, 8);
         dest[8] = 0;
@@ -528,7 +472,7 @@ int process_input(char *input, PlayerGame *game) {
         if (decode != 0) {
             return decode;
         }
-    } else if (validate_played(input)) {
+    } else if (strncmp(input, "PLAYED", 6) == 0) {
         //todo get current from string
         game->playerMove = extract_last_player(input);
         strncpy(dest, input, 6);
@@ -542,7 +486,7 @@ int process_input(char *input, PlayerGame *game) {
         if (decode != 0) {
             return decode;
         }
-    } else if (validate_gameover(input)) {
+    } else if (strncmp(input, "GAMEOVER", 8) == 0) {
         return gameover(input);
     } else {
         return show_player_message(MSGERR);
@@ -561,14 +505,6 @@ int cont_read_stdin(PlayerGame *game) {
     char input[LINESIZE];
     fgets(input, BUFSIZ, stdin);
     while (strcmp(input, "GAMEOVER\n") != 0 && !feof(stdin)) { //fixme check \n?
-        //TODO DEBUG REMOVE;
-        //printf("in %s\n", input);
-        if (validate_play(input)) {
-            game->player_strategy(game);
-            game->orderPos += 1;
-            fgets(input, BUFSIZ, stdin);
-            continue;
-        }
 //        fprintf(stderr, "(%d) READ: %s", game->myID, input);
         int processed = process_input(input, game);
         if (processed != 0) {
@@ -774,7 +710,7 @@ void init_expected(PlayerGame *game) {
     game->round = 0;
     game->firstRound = 1;
     game->cardPos = 0;
-    game->cardsStored = (char **) malloc(game->playerCount * sizeof(char*));
+    game->cardsStored = (char **) malloc(game->playerCount * sizeof(char *));
     malloc_card_storage(game);
     game->order = malloc(sizeof(int) * (game->playerCount - 1));
     game->orderPos = 0;

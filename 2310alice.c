@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
         init_expected(&game);
         fprintf(stdout, "@");
         fflush(stdout);
-        game.player_strategy = alice_strategy;
+        game.playerStrategy = alice_strategy;
         return cont_read_stdin(&game);
     } else {
         return show_player_message(ARGERR);
