@@ -49,19 +49,15 @@ int bob_lead_move(PlayerGame *game) {
  */
 int bob_d_card_move(PlayerGame *game) {
     if (card_in_lead_suit(game) == DONE) {
-        //printf("::\n");
         char rank = 0;
         Card play;
         play.rank = -1;
         for (int i = 0; i < game->handSize; i++) {
-//        printf("%d <%c%c>\n", i, game->hand[i].suit, game->hand[i].rank);
             if (game->hand[i].suit == game->leadSuit) {
-//            printf("%d vs %d\n", game->hand[i].rank, rank);
                 if (game->hand[i].rank >= rank) {
                     rank = game->hand[i].rank;
                     play.rank = game->hand[i].rank;
                     play.suit = game->hand[i].suit;
-//                printf("//%c%c//\n", game->hand[i].suit, game->hand[i].rank);
                 }
             }
         }
@@ -72,7 +68,6 @@ int bob_d_card_move(PlayerGame *game) {
         remove_card(game, &play);
         return DONE;
     } else {
-        //printf("}}\n");
         char *suits = "SCHD";
         Card play;
         play.rank = -1;

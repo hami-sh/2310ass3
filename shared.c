@@ -343,6 +343,50 @@ int number_digits(int i) {
 }
 
 /**
+ * Function to perform final checks of the played message received.
+ * @param game struct representing player's tracking of game.
+ * @param input string representing message
+ * @param newCard struct representing card played
+ * @param justPlayed player number that just played.
+ * @return 0 - no errors
+ *         6 - message error.
+ */
+int misc_played_checking(PlayerGame *game, char *input, Card *newCard,
+        int justPlayed) {
+    if (validate_card(input[0]) && (isdigit(input[1]) ||
+            (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
+        newCard->suit = input[0];
+        newCard->rank = input[1];
+        save_card(game, newCard);
+        game->cardPos += 1;
+    } else {
+        return show_player_message(MSGERR);
+    }
+    if (strlen(input) != 2) {
+        return show_player_message(MSGERR);
+    }
+
+    if (justPlayed == game->leadPlayer) {
+        game->leadSuit = newCard->suit;
+    }
+
+    if (justPlayed == game->lastPlayer) {
+        player_end_of_round_output(game);
+        return DONE;
+    }
+
+    if (game->orderPos == game->myID) {
+        game->playerStrategy(game);
+        next_player(game);
+    }
+    if (newCard->suit == 'D') {
+        game->dPlayedRound++;
+        game->dPlayerNumber[justPlayed]++;
+    }
+    return DONE;
+}
+
+/**
  * Function to decode the played message from stdin.
  * @param input - string representing message
  * @param game struct representing player's tracking of game.
@@ -386,39 +430,11 @@ int decode_played(char *input, PlayerGame *game) {
     input += i;
     input += 1;
 
-    if (validate_card(input[0]) && (isdigit(input[1]) ||
-            (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
-        newCard.suit = input[0];
-        newCard.rank = input[1];
-        save_card(game, &newCard);
-//        printf("hi3\n");
-
-        game->cardPos += 1;
-    } else {
-        return show_player_message(MSGERR);
-    }
-    if (strlen(input) != 2) {
-        return show_player_message(MSGERR);
+    int misc = misc_played_checking(game, input, &newCard, justPlayed);
+    if (misc != 0) {
+        return misc;
     }
 
-    if (justPlayed == game->leadPlayer) {
-        game->leadSuit = newCard.suit;
-    }
-
-    if (justPlayed == game->lastPlayer) {
-        player_end_of_round_output(game);
-        return DONE;
-    }
-
-//    fprintf(stderr, "%d\n", peek_next_player(game));
-    if (game->orderPos == game->myID) {
-        game->playerStrategy(game);
-        next_player(game);
-    }
-    if (newCard.suit == 'D') {
-        game->dPlayedRound++;
-        game->dPlayerNumber[justPlayed]++;
-    }
     return DONE;
 }
 
@@ -601,9 +617,6 @@ int further_arg_checks(int argc, char **argv, PlayerGame *game) {
  *         4 - Less than P cards in the deck
  */
 int parse_player(int argc, char **argv, PlayerGame *game) {
-    //     0           1         2        3        4
-    // 2310alice playerCount playerID threshold handSize
-
     // check playerCount
     char *countArg = malloc(sizeof(char) * strlen(argv[1]));
     if (strlen(argv[1]) == 0) {
@@ -614,7 +627,6 @@ int parse_player(int argc, char **argv, PlayerGame *game) {
         if (argv[1][s] == '.') {
             return show_player_message(PLAYERERR);
         }
-        // check that dimensions supplied are digits.
         if (!isdigit(argv[1][s])) {
             return show_player_message(PLAYERERR);
         }
@@ -637,7 +649,6 @@ int parse_player(int argc, char **argv, PlayerGame *game) {
         if (argv[2][s] == '.') {
             return show_player_message(POSERR);
         }
-        // check that dimensions supplied are digits.
         if (!isdigit(argv[2][s])) {
             return show_player_message(POSERR);
         }
@@ -649,14 +660,11 @@ int parse_player(int argc, char **argv, PlayerGame *game) {
     if (game->myID < 0 || game->myID >= game->playerCount) {
         return show_player_message(POSERR);
     }
-
     int otherParse = further_arg_checks(argc, argv, game);
     if (otherParse != 0) {
         return otherParse;
     }
-
     return DONE;
-
 }
 
 /**

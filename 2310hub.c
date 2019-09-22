@@ -36,6 +36,28 @@ Status show_message(Status s) {
     return s;
 }
 
+/**
+ * Function to handle the production of argument vector for creation of players
+ * @param game struct representing hub's tracking of game.
+ * @param argv arguments from command line.
+ * @param args argument vector to write to.
+ * @param i player number.
+ */
+void arg_creator(Game *game, char **argv, char **args, int i) {
+    args[0] = argv[i + 3];
+    args[1] = malloc((number_digits(game->playerCount) + 1)
+            * sizeof(char));
+    args[2] = malloc((number_digits(i) + 1) * sizeof(char));
+    args[3] = malloc((number_digits(game->threshold) + 1)
+            * sizeof(char));
+    args[4] = malloc((number_digits(game->numCardsToDeal) + 1)
+            * sizeof(char));
+    sprintf(args[1], "%d", game->playerCount);
+    sprintf(args[2], "%d", i);
+    sprintf(args[3], "%d", game->threshold);
+    sprintf(args[4], "%d", game->numCardsToDeal);
+    args[5] = 0;
+}
 
 /**
  * Function to perform forking of players
@@ -66,26 +88,11 @@ int create_players(Game *game, char **argv) {
             //send stdout child to write of pipeB
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO);
 
-            //todo DEBUG REPLACE
             int dev = open("/dev/null", O_WRONLY);
             dup2(dev, 2); // supress stderr of child
 
-
             char *args[6];
-            args[0] = argv[i + 3];
-            args[1] = malloc((number_digits(game->playerCount) + 1)
-                    * sizeof(int));
-            args[2] = malloc((number_digits(i) + 1) * sizeof(int));
-            args[3] = malloc((number_digits(game->threshold) + 1)
-                    * sizeof(int));
-            args[4] = malloc((number_digits(game->numCardsToDeal) + 1)
-                    * sizeof(int));
-            sprintf(args[1], "%d", game->playerCount);
-            sprintf(args[2], "%d", i);
-            sprintf(args[3], "%d", game->threshold);
-            sprintf(args[4], "%d", game->numCardsToDeal);
-            //printf("%d\n", game->numCardsToDeal);
-            args[5] = 0;
+            arg_creator(game, argv, args, i);
             execv(argv[i + 3], args);
             return show_message(PLAYERSTART);
 
@@ -102,8 +109,6 @@ int create_players(Game *game, char **argv) {
         game->players[i].fileIn = fdopen(game->players[i].pipeIn[1], "w");
         game->players[i].fileOut = fdopen(game->players[i].pipeOut[0], "r");
     }
-
-
     return OK;
 }
 
@@ -266,10 +271,9 @@ int send_and_receive(Game *game) {
     int numberPlays = 0;
     while (go) {
         // get current player move
-        // +2 to allow for \n\0
-        const short buffSize = (short) log10(INT_MAX) + 3;
-        char buffer[buffSize];
-        if (!fgets(buffer, buffSize - 1, game->players[playerMove].fileOut)
+        const short bufferSize = (short) log10(INT_MAX) + 3;
+        char buffer[bufferSize];
+        if (!fgets(buffer, bufferSize - 1, game->players[playerMove].fileOut)
                 || feof(game->players[playerMove].fileOut)
                 || ferror(game->players[playerMove].fileOut)) {
             return show_message(PLAYEREOF);
@@ -287,7 +291,6 @@ int send_and_receive(Game *game) {
         game->cardsByRound[game->roundNumber][playerMove] = playedCard;
         game->cardsOrderPlayed[game->roundNumber][numberPlays] = playedCard;
 
-
         // send move to other players
         char *playedMsg = malloc(7 + number_digits(playerMove) + 2);
         sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4],
@@ -300,7 +303,6 @@ int send_and_receive(Game *game) {
         }
         playerMove += 1; // move to next player
         numberPlays += 1;
-//        printf("%dvs%d %d\n", game->lastPlayer, playerMove, numberPlays);
         if (numberPlays == game->playerCount) {
             go = false;
             break;
@@ -366,13 +368,6 @@ void end_game_output(Game *game) {
  *         9 - received SIGHUP
  */
 int game_loop(Game *game) {
-    // setup SIGHUP detection
-    struct sigaction saSighup;
-    saSighup.sa_handler = handle_sighup;
-    saSighup.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &saSighup, 0);
-
-//    while (true) {
     while (!sighup) {
         struct timespec nap;
         nap.tv_sec = 0;
@@ -610,6 +605,12 @@ int load_deck(FILE *input, Deck *deck) {
  * @param game struct representing player's tracking of game.
  */
 void init_state(Game *game) {
+    // setup SIGHUP detection
+    struct sigaction saSighup;
+    saSighup.sa_handler = handle_sighup;
+    saSighup.sa_flags = SA_RESTART;
+    sigaction(SIGHUP, &saSighup, 0);
+
     game->state = "start";
     game->cardsByRound = (Card **) malloc(sizeof(Card *)
             * game->numCardsToDeal);
