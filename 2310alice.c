@@ -115,12 +115,10 @@ int alice_strategy(PlayerGame *game) {
     alice_default_move(game);
 
     if (game->myID == game->playerCount - 1) {
-//        printf("yeehaw\n");
-        //set_expected(game, "NEWROUND"); // all players have moved.
         player_end_of_round_output(game);
     }
 
-    return DONE; //todo change
+    return DONE;
 }
 
 /**

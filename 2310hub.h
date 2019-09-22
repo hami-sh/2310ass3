@@ -10,9 +10,9 @@
 // struct for the game
 typedef struct {
     Deck deck;
-    Play *board;   //todo fix for number of players
-    Player *players;  //todo fix for number of players
-    char *types; //todo fix for number of players
+    Play *board;
+    Player *players;
+    char *types;
     unsigned int current; // will be 0 - playerNumber
     int threshold;
     int playerCount;
@@ -30,6 +30,9 @@ typedef struct {
     int *dScore;
     int *finalScores;
     int lastPlayer;
+
+    Card **playerHands;
+    int *playerHandSizes;
 } Game;
 
 typedef enum {
@@ -52,16 +55,7 @@ typedef enum {
     PLAYING = 3,
     ENDROUND = 4,
     ENDGAME = 5,
-//    PLAYEREOF = 6,
-//    PLAYERMSG = 7,
-//    PLAYERCHOICE = 8,
-//    GOTSIGHUP = 9
 } State;
-
-//typedef struct {
-//    int in;
-//    int out;
-//} Pipe;
 
 int handler_deck(char *deckName, Game *game);
 

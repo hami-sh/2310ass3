@@ -423,7 +423,6 @@ int decode_played(char *input, PlayerGame *game) {
 //        fprintf(stderr, "(%d) inc\n", game->myID);
         game->orderPos++;
     }
-    //todo is this an issue
     game->cardsPlayed = malloc(game->handSize * game->playerCount * 2 *
             sizeof(Card));
 
@@ -435,15 +434,6 @@ int decode_played(char *input, PlayerGame *game) {
         return misc;
     }
 
-    return DONE;
-}
-
-/**
- * Function to handle gameover message from stdin.
- * @param input - string representing message
- * @return //fixme
- */
-int gameover(char *input) {
     return DONE;
 }
 
@@ -503,7 +493,6 @@ int process_input(char *input, PlayerGame *game) {
             return decode;
         }
     } else if (strncmp(input, "PLAYED", 6) == 0) {
-        //todo get current from string
         game->playerMove = extract_last_player(input);
         strncpy(dest, input, 6);
         dest[6] = 0;
@@ -516,7 +505,7 @@ int process_input(char *input, PlayerGame *game) {
             return decode;
         }
     } else if (strncmp(input, "GAMEOVER", 8) == 0) {
-        return gameover(input);
+        return 0;
     } else {
         return show_player_message(MSGERR);
     }

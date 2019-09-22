@@ -177,8 +177,9 @@ int deal_card_to_player(Game *game, int id) {
     int j;
     for (j = 0; j < game->numCardsToDeal; j++) {
         cardsForPlayer[j] = game->deck.contents[j];
-//        printf("%c%c-", cardsForPlayer[j].suit, cardsForPlayer[j].rank);
+        game->playerHands[id][j] = game->deck.contents[j];
     }
+
     for (j = 0; j < game->numCardsToDeal; j++) {
         remove_deck_card(game, &cardsForPlayer[j]);
     }
@@ -207,6 +208,7 @@ int deal_card_to_player(Game *game, int id) {
     }
     hand[i] = '\n';
     hand[i + 1] = '\0';
+    game->playerHandSizes[id] = game->numCardsToDeal;
     fprintf(game->players[id].fileIn, hand);
     fflush(game->players[id].fileIn);
     return DONE;
@@ -259,6 +261,69 @@ void calculate_scores(Game *game) {
 
 }
 
+void remove_card_hand(Game *game, Card *card, int player) {
+    int pos = 0;
+    for (int i = 0; i < game->playerHandSizes[player]; i++) {
+        if (game->playerHands[player][i].suit == card->suit) {
+            if (game->playerHands[player][i].rank == card->rank) {
+                pos = i;
+                break;
+            }
+        }
+    }
+    for (int q = pos; q < game->playerHandSizes[player] - 1; q++) {
+        // shift all cards to compensate for removal.
+        game->playerHands[player][q] = game->playerHands[player][q + 1];
+    }
+
+    game->playerHandSizes[player] -= 1;
+}
+
+int check_card_in_hand(Game *game, Card *card, int player) {
+    int found = 0;
+//    printf("%d ", game->playerHandSizes[player]);
+//    for (int i = 0; i < game->playerHandSizes[player]; i++) {
+//        printf("%c%c ", game->playerHands[player][i].suit, game->playerHands[player][i].rank);
+//    }
+    for (int i = 0; i < game->playerHandSizes[player]; i++) {
+        if (card->suit == game->playerHands[player][i].suit) {
+            if (card->rank == game->playerHands[player][i].rank) {
+//                printf("<%c%c>\n", card->suit, card->rank);
+                found = 1;
+            }
+        }
+    }
+    if (found != 1) {
+        return show_message(PLAYERCHOICE);
+    } else {
+        remove_card_hand(game, card, player);
+    }
+    return OK;
+}
+
+int validate_play(Game *game, char *message, int player) {
+    if (strncmp(message, "PLAY", 4) != 0) {
+        return show_message(PLAYERMSG);
+    }
+
+    Card newCard;
+    if (validate_card(message[4]) && (isdigit(message[5]) ||
+        (isalpha(message[5]) && isxdigit(message[5])
+        && islower(message[5])))) {
+        newCard.suit = message[4];
+        newCard.rank = message[5];
+    } else {
+        return show_message(PLAYERMSG);
+    }
+
+    int checked = check_card_in_hand(game, &newCard, player);
+    if (checked != 0) {
+        return checked;
+    }
+
+    return OK;
+}
+
 /**
  * Function to handle the sending of messages to the players, along with the
  * reception of messages too from said players.
@@ -278,8 +343,11 @@ int send_and_receive(Game *game) {
                 || ferror(game->players[playerMove].fileOut)) {
             return show_message(PLAYEREOF);
         }
-//        printf("%d: %s", playerMove, buffer);
-        //todo validate move
+
+        int validation = validate_play(game, buffer, playerMove);
+        if (validation != 0) {
+            return validation;
+        }
 
         if (playerMove == game->leadPlayer) {
             game->leadSuit = buffer[4];
@@ -361,10 +429,11 @@ void end_game_output(Game *game) {
 }
 
 /**
- * //fixme check return status'
  * Function to handle the overarching game loop.
  * @param game struct representing hub's tracking of game.
  * @return 0 - normal exit
+ *         7 - invalid message
+ *         8 - invalid card choice.
  *         9 - received SIGHUP
  */
 int game_loop(Game *game) {
@@ -379,10 +448,9 @@ int game_loop(Game *game) {
                 deal_card_to_player(game, i);
             }
             next_state(game);
-            next_state(game); //fixme bruh
+            next_state(game);
             continue;
         } else if (get_state(game) == NEWROUND) {
-            //todo continue & break below into separate section.
             newround_msg(game);
         } else if (get_state(game) == PLAYING) {
             int response = send_and_receive(game);
@@ -443,6 +511,9 @@ int parse(int argc, char **argv, Game *game) {
         //store each character of the number
         thresholdArg[s] = argv[2][s];
     }
+    if (strcmp(thresholdArg, "") == 0) {
+        return show_message(THRESHOLD);
+    }
     sscanf(thresholdArg, "%d", &game->threshold);
     free(thresholdArg);
     if (game->threshold < 2) {
@@ -462,21 +533,6 @@ int parse(int argc, char **argv, Game *game) {
 
     return OK;
 }
-
-/*int player_arg_checker(int argc, char** argv, Game *game) {
-    game->types = (char *) malloc((argc - 3) * sizeof(char));
-    for (int i = 3; i < argc; i++) {
-        if (strcmp(argv[i], "./2310alice") == 0 ) {
-            game->types[i-3] = 'a';
-        } else if (strcmp(argv[i], "./2310bob") == 0) {
-            game->types[i-3] = 'b';
-        } else {
-            return show_message(PLAYERSTART);
-        }
-    }
-    game->types[game->playerCount] = '\0';
-    return OK;
-}*/
 
 /**
  * Function to handle the reading deck contents.
@@ -616,6 +672,10 @@ void init_state(Game *game) {
             * game->numCardsToDeal);
     game->cardsOrderPlayed = (Card **) malloc(sizeof(Card *)
             * game->numCardsToDeal);
+    game->playerHands = (Card **) malloc(sizeof(Card *)
+            * game->playerCount);
+    game->playerHandSizes = (int *) malloc(sizeof(Card *)
+            * game->playerCount);
     for (int i = 0; i < game->numCardsToDeal; i++) {
         game->cardsOrderPlayed[i] = (Card *) malloc(sizeof(Card)
                 * game->playerCount);
@@ -630,6 +690,8 @@ void init_state(Game *game) {
         game->nScore[i] = 0;
         game->dScore[i] = 0;
         game->finalScores[i] = 0;
+        game->playerHands[i] = (Card *) malloc(sizeof(Card)
+                * game->numCardsToDeal);
     }
 }
 
