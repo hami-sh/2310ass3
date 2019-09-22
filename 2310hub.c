@@ -261,6 +261,12 @@ void calculate_scores(Game *game) {
 
 }
 
+/**
+ * Function to remove card from players hand
+ * @param game struct representing hub's tracking of game.
+ * @param card struct of card to remove
+ * @param player int representing player to remove from
+ */
 void remove_card_hand(Game *game, Card *card, int player) {
     int pos = 0;
     for (int i = 0; i < game->playerHandSizes[player]; i++) {
@@ -279,11 +285,20 @@ void remove_card_hand(Game *game, Card *card, int player) {
     game->playerHandSizes[player] -= 1;
 }
 
+/**
+ * Function to check if a card is present in the player's hand.
+ * @param game struct representing hub's tracking of game.
+ * @param card struct of card to remove
+ * @param player int representing player to check
+ * @return 0 if no error
+ *         8 if card not present.
+ */
 int check_card_in_hand(Game *game, Card *card, int player) {
     int found = 0;
 //    printf("%d ", game->playerHandSizes[player]);
 //    for (int i = 0; i < game->playerHandSizes[player]; i++) {
-//        printf("%c%c ", game->playerHands[player][i].suit, game->playerHands[player][i].rank);
+        //printf("%c%c ", game->playerHands[player][i].suit,
+        // game->playerHands[player][i].rank);
 //    }
     for (int i = 0; i < game->playerHandSizes[player]; i++) {
         if (card->suit == game->playerHands[player][i].suit) {
@@ -301,15 +316,25 @@ int check_card_in_hand(Game *game, Card *card, int player) {
     return OK;
 }
 
+/**
+ * Function to validate a message from a player.
+ * @param game struct representing hub's tracking of game.
+ * @param message string message from player
+ * @param player int representing player to validate
+ * @return
+ */
 int validate_play(Game *game, char *message, int player) {
     if (strncmp(message, "PLAY", 4) != 0) {
+        return show_message(PLAYERMSG);
+    }
+    if (strlen(message) > 7) {
         return show_message(PLAYERMSG);
     }
 
     Card newCard;
     if (validate_card(message[4]) && (isdigit(message[5]) ||
-        (isalpha(message[5]) && isxdigit(message[5])
-        && islower(message[5])))) {
+            (isalpha(message[5]) && isxdigit(message[5])
+            && islower(message[5])))) {
         newCard.suit = message[4];
         newCard.rank = message[5];
     } else {
@@ -352,7 +377,6 @@ int send_and_receive(Game *game) {
         if (playerMove == game->leadPlayer) {
             game->leadSuit = buffer[4];
         }
-
         Card playedCard;
         playedCard.suit = buffer[4];
         playedCard.rank = buffer[5];

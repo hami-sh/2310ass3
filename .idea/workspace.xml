@@ -12,11 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d33790e2-6c45-48e8-aeed-631455ec034b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/2310alice.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310alice.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2310hub.h" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared.c" beforeDir="false" afterPath="$PROJECT_DIR$/shared.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo" beforeDir="false" afterPath="$PROJECT_DIR$/todo" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -47,8 +43,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/2310hub.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="358">
-              <caret line="513" selection-start-line="513" selection-end-line="513" />
+            <state relative-caret-position="617">
+              <caret line="312" column="12" lean-forward="true" selection-start-line="312" selection-start-column="12" selection-end-line="312" selection-end-column="12" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -59,8 +55,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/2310hub.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="501">
-              <caret line="52" column="4" selection-start-line="52" selection-start-column="4" selection-end-line="52" selection-end-column="4" />
+            <state relative-caret-position="281">
+              <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -186,7 +182,7 @@
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
     <option name="x" value="791" />
-    <option name="y" value="31" />
+    <option name="y" value="30" />
     <option name="width" value="1639" />
     <option name="height" value="985" />
   </component>
@@ -345,12 +341,12 @@
       <workItem from="1569055479224" duration="3858000" />
       <workItem from="1569107065700" duration="84000" />
       <workItem from="1569107165212" duration="7194000" />
-      <workItem from="1569129327950" duration="8695000" />
+      <workItem from="1569129327950" duration="9690000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="127243000" />
+    <option name="totallyTimeSpent" value="128238000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -362,7 +358,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="791" y="31" width="1639" height="985" extended-state="0" />
+    <frame x="791" y="30" width="1639" height="985" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.5363942" visible="true" weight="0.22354415" />
@@ -428,7 +424,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/2310hub.c</url>
-          <line>263</line>
+          <line>269</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
       </breakpoints>
@@ -598,8 +594,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/2310hub.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="501">
-          <caret line="52" column="4" selection-start-line="52" selection-start-column="4" selection-end-line="52" selection-end-column="4" />
+        <state relative-caret-position="281">
+          <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -608,8 +604,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/2310hub.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="513" selection-start-line="513" selection-end-line="513" />
+        <state relative-caret-position="617">
+          <caret line="312" column="12" lean-forward="true" selection-start-line="312" selection-start-column="12" selection-end-line="312" selection-end-column="12" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
