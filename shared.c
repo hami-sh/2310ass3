@@ -90,11 +90,11 @@ void set_player(PlayerGame *game, int player) {
 
 int next_player(PlayerGame *game) {
     if (game->orderPos == game->playerCount - 1) {
-        fprintf(stderr, "(%d) %d : %d", game->myID, game->orderPos, game->playerCount - 1);
-        fprintf(stderr, "reset\n");
+//        fprintf(stderr, "(%d) %d : %d", game->myID, game->orderPos, game->playerCount - 1);
+//        fprintf(stderr, "reset\n");
         game->orderPos = 0;
     } else {
-        fprintf(stderr, "(%d) inc\n", game->myID);
+//        fprintf(stderr, "(%d) inc\n", game->myID);
         game->orderPos++;
     }
     return game->orderPos;
@@ -330,7 +330,7 @@ int decode_newround(char *input, PlayerGame *game) {
     }
     // make move!
     if (game->myID == game->leadPlayer) {
-        fprintf(stderr, "NEWROUND: %d MOVED\n", game->myID);
+//        fprintf(stderr, "NEWROUND: %d MOVED\n", game->myID);
         game->player_strategy(game);
         if (game->myID == game->playerCount - 1) {
             game->orderPos = game->myID;
@@ -346,7 +346,7 @@ int decode_newround(char *input, PlayerGame *game) {
         game->lastPlayer = game->playerCount - 1;
     }
 
-    fprintf(stderr, "NEWROUND next player:: %d\n", game->orderPos);
+//    fprintf(stderr, "NEWROUND next player:: %d\n", game->orderPos);
     return DONE;
 }
 
@@ -417,7 +417,7 @@ int decode_played(char *input, PlayerGame *game) {
 //        fprintf(stderr, "%d broke %dvs%d\n", game->myID, justPlayed, game->orderPos);
 //        return show_player_message(MSGERR);
     if (justPlayed == (game->playerCount - 1)) {
-        fprintf(stderr, "(%d) %d just played, reset to 0\n", game->myID, justPlayed);
+//        fprintf(stderr, "(%d) %d just played, reset to 0\n", game->myID, justPlayed);
         game->orderPos = 0;
         if (game->lastPlayer == justPlayed) {
             set_expected(game, "HAND");
@@ -425,7 +425,7 @@ int decode_played(char *input, PlayerGame *game) {
             set_expected(game, "PLAYED");
         }
     } else {
-        fprintf(stderr, "(%d) inc\n", game->myID);
+//        fprintf(stderr, "(%d) inc\n", game->myID);
         game->orderPos++;
     }
     //todo is this an issue
@@ -459,7 +459,7 @@ int decode_played(char *input, PlayerGame *game) {
         return DONE;
     }
 
-    fprintf(stderr, "%d\n", peek_next_player(game));
+//    fprintf(stderr, "%d\n", peek_next_player(game));
     if (game->orderPos == game->myID) {
         game->player_strategy(game);
         next_player(game);
@@ -535,7 +535,7 @@ int process_input(char *input, PlayerGame *game) {
         dest[6] = 0;
         int msgCheck = check_expected(game, dest, game->playerMove);
         if (msgCheck != 0) {
-            fprintf(stderr, "BRUH\n");
+//            fprintf(stderr, "BRUH\n");
             return msgCheck;
         }
         int decode = decode_played(input, game);
@@ -569,7 +569,7 @@ int cont_read_stdin(PlayerGame *game) {
             fgets(input, BUFSIZ, stdin);
             continue;
         }
-        fprintf(stderr, "(%d) READ: %s", game->myID, input);
+//        fprintf(stderr, "(%d) READ: %s", game->myID, input);
         int processed = process_input(input, game);
         if (processed != 0) {
             return processed;

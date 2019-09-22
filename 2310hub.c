@@ -113,7 +113,7 @@ int create_players(Game *game, char** argv) {
 int check_players(Game *game) {
     for (int i = 0; i < game->playerCount; i++) {
         char c = fgetc(game->players[i].fileOut);
-        printf("%d %c\n", i, c);
+//        printf("%d %c\n", i, c);
         if (c != '@') {
             return show_message(PLAYERSTART);
         }
@@ -234,12 +234,12 @@ void calculate_scores(Game *game) {
                 winner = i;
             }
         }
-        printf("%c%c ", playedCard.suit, playedCard.rank);
+//        printf("%c%c ", playedCard.suit, playedCard.rank);
     }
     game->leadPlayer = winner;
     game->nScore[winner] += 1;
     game->dScore[winner] += dCardCount;
-    printf("----(%d %d %d)----\n", winner, game->nScore[winner], game->dScore[winner]);
+//    printf("----(%d %d %d)----\n", winner, game->nScore[winner], game->dScore[winner]);
 
 
 }
@@ -260,7 +260,7 @@ int send_and_receive(Game *game) {
             //fixme do something here
             printf("bruh\n");
         }
-        printf("%d: %s", playerMove, buffer);
+//        printf("%d: %s", playerMove, buffer);
         //todo validate move
 
         if (playerMove == game->leadPlayer) {
@@ -299,7 +299,7 @@ int send_and_receive(Game *game) {
 }
 
 void end_round_output(Game *game) {
-    printf("ENDROUND\n");
+//    printf("ENDROUND\n");
     printf("Lead player=%d\n", game->leadPlayer);
     printf("Cards=");
     for (int i = 0; i < game->playerCount; i++) {
@@ -322,7 +322,7 @@ void end_game_output(Game *game) {
             game->finalScores[i] = game->nScore[i] - game->dScore[i];
         }
     }
-    printf("ENDGAME\n");
+//    printf("ENDGAME\n");
     for (int i = 0; i < game->playerCount; i++) {
         if (i != game->playerCount - 1) {
             printf("%d:%d ", i, game->finalScores[i]);
@@ -647,6 +647,7 @@ int next_state(Game *game) {
             return NEWROUND;
         }
     }
+    return DONE;
 }
 
 void remove_deck_card(Game *game, Card *card) {
