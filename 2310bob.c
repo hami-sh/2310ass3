@@ -10,7 +10,11 @@
 #include "shared.h"
 #include <ctype.h>
 
-
+/**
+ * Function to handle bob's move as the lead player
+ * @param game struct representing player's tracking of game.
+ * @return 0 when done.
+ */
 int bob_lead_move(PlayerGame *game) {
     char *suits = "DHSC";
     Card play;
@@ -38,7 +42,12 @@ int bob_lead_move(PlayerGame *game) {
     return DONE;
 }
 
-int bob_D_card_move(PlayerGame *game) {
+/**
+ * Function to handle bob's move regarding D cards played.
+ * @param game struct representing player's tracking of game.
+ * @return 0 when done.
+ */
+int bob_d_card_move(PlayerGame *game) {
     if (card_in_lead_suit(game) == DONE) {
         //printf("::\n");
         char rank = 0;
@@ -91,6 +100,11 @@ int bob_D_card_move(PlayerGame *game) {
     }
 }
 
+/**
+ * Function to handle bob's default move.
+ * @param game struct representing player's tracking of game.
+ * @return 0 when done.
+ */
 int bob_default_move(PlayerGame *game) {
     char *suits = "SCDH";
     char rank = 0;
@@ -126,6 +140,11 @@ int bob_default_move(PlayerGame *game) {
     return DONE;
 }
 
+/**
+ * Function to check if there is a player that has won D cards over threshold.
+ * @param game struct representing player's tracking of game.
+ * @return 1 if true, 0 if false.
+ */
 int player_won_over_threshold(PlayerGame *game) {
     for (int i = 0; i < game->playerCount; i++) {
         if (game->dPlayerNumber[i] >= (game->threshold - 2)) {
@@ -135,6 +154,11 @@ int player_won_over_threshold(PlayerGame *game) {
     return 0;
 }
 
+/**
+ * Function to see if there have been any D cards played this round.
+ * @param game struct representing player's tracking of game.
+ * @return 1 if true, 0 if false.
+ */
 int d_cards_in_round(PlayerGame *game) {
     if (game->dPlayedRound > 0) {
         return 1;
@@ -142,6 +166,11 @@ int d_cards_in_round(PlayerGame *game) {
     return 0;
 }
 
+/**
+ * Function to handle overarching decision making of bob's activity.
+ * @param game struct representing player's tracking of game.
+ * @return 0 when done.
+ */
 int bob_strategy(PlayerGame *game) {
     //lead move
     if (game->leadPlayer == game->myID) {
@@ -152,9 +181,9 @@ int bob_strategy(PlayerGame *game) {
 
     //D card move
     if ((player_won_over_threshold(game) == 1) &&
-        (d_cards_in_round(game) == 1)) {
+            (d_cards_in_round(game) == 1)) {
         //printf("D move\n");
-        bob_D_card_move(game);
+        bob_d_card_move(game);
         return DONE;
     }
 
@@ -180,6 +209,18 @@ int bob_strategy(PlayerGame *game) {
     return DONE;
 }
 
+/**
+ * Function acting as entry point for the program when first loaded.
+ * @param argc - number of arguments supplied at command line.
+ * @param argv - array of strings supplied at startup.
+ * @return 0 - normal exit
+ *         1 - incorrect number of arguments
+ *         2 - number of players < 2 or not a number
+ *         3 - invalid position for number of players
+ *         4 - threshold < 2 or not a number
+ *         6 - invalid message from hub.
+ *         7 - unexpected EOF from hub.
+ */
 int main(int argc, char **argv) {
     if (argc == 5) {
         PlayerGame game;

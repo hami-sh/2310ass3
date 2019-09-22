@@ -92,9 +92,6 @@ void alice_default_move(PlayerGame *game) {
  * @return int - 0 when done.
  */
 int alice_strategy(PlayerGame *game) {
-//    for (int i = 0; i < game->handSize; i++) {
-//        printf("-(%c%c)-", game->hand[i].suit, game->hand[i].rank);
-//    }
     //if lead - order S C D H
     if (game->leadPlayer == game->myID) {
         //printf("LEAD\n");
@@ -126,6 +123,18 @@ int alice_strategy(PlayerGame *game) {
     return DONE; //todo change
 }
 
+/**
+ * Function acting as entry point for the program when first loaded.
+ * @param argc - number of arguments supplied at command line.
+ * @param argv - array of strings supplied at startup.
+ * @return 0 - normal exit
+ *         1 - incorrect number of arguments
+ *         2 - number of players < 2 or not a number
+ *         3 - invalid position for number of players
+ *         4 - threshold < 2 or not a number
+ *         6 - invalid message from hub.
+ *         7 - unexpected EOF from hub.
+ */
 int main(int argc, char **argv) {
     if (argc == 5) {
         PlayerGame game;

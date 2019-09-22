@@ -42,11 +42,8 @@ void set_player(PlayerGame *game, int player) {
  */
 int next_player(PlayerGame *game) {
     if (game->orderPos == game->playerCount - 1) {
-//        fprintf(stderr, "(%d) %d : %d", game->myID, game->orderPos, game->playerCount - 1);
-//        fprintf(stderr, "reset\n");
         game->orderPos = 0;
     } else {
-//        fprintf(stderr, "(%d) inc\n", game->myID);
         game->orderPos++;
     }
     return game->orderPos;
@@ -84,6 +81,11 @@ void remove_card(PlayerGame *game, Card *card) {
 
 }
 
+/**
+ * Function to save a card as being played.
+ * @param game struct representing player's tracking of game.
+ * @param card struct representing card to save
+ */
 void save_card(PlayerGame *game, Card *card) {
     game->cardsStored[game->cardPos][0] = card->suit;
     game->cardsStored[game->cardPos][1] = '.';
@@ -147,13 +149,13 @@ int get_rank_integer(char arg) {
  */
 PlayerStatus show_player_message(PlayerStatus s) {
     const char *messages[] = {"",
-                              "Usage: player players myid threshold handsize\n",
-                              "Invalid players\n",
-                              "Invalid position\n",
-                              "Invalid threshold\n",
-                              "Invalid hand size\n",
-                              "Invalid message\n",
-                              "EOF\n"};
+            "Usage: player players myid threshold handsize\n",
+            "Invalid players\n",
+            "Invalid position\n",
+            "Invalid threshold\n",
+            "Invalid hand size\n",
+            "Invalid message\n",
+            "EOF\n"};
     fputs(messages[s], stderr);
     return s;
 }
@@ -210,7 +212,7 @@ int decode_hand(char *input, PlayerGame *game) {
             if (strlen(arrow) > 2) {
                 return show_player_message(MSGERR);
             } else if (validate_card(arrow[0]) && (isdigit(arrow[1])
-                                                   || isxdigit(arrow[1]))) {
+                    || isxdigit(arrow[1]))) {
                 Card card;
                 card.suit = arrow[0];
                 card.rank = arrow[1];
@@ -294,11 +296,14 @@ int decode_newround(char *input, PlayerGame *game) {
     return DONE;
 }
 
+/**
+ * Function to decide who was the winner of the round.
+ * @param game struct representing player's tracking of game.
+ */
 void decide_round_winner(PlayerGame *game) {
     int rank = 0;
     for (int i = 0; i < game->playerCount; i++) {
         if (game->cardsStored[i][0] == game->leadSuit) {
-            //printf("\n %d %d %d", i, get_rank_integer(game->cardsStored[i][2]), rank);
             if (get_rank_integer(game->cardsStored[i][2]) > rank) {
                 game->roundWinner = i;
                 rank = get_rank_integer(game->cardsStored[i][0]);
@@ -307,6 +312,10 @@ void decide_round_winner(PlayerGame *game) {
     }
 }
 
+/**
+ * Function to output end of round msg to stderr at the end of the round.
+ * @param game struct representing player's tracking of game.
+ */
 void player_end_of_round_output(PlayerGame *game) {
     decide_round_winner(game);
     fprintf(stderr, "Lead player=%d:", game->leadPlayer);
@@ -358,10 +367,8 @@ int decode_played(char *input, PlayerGame *game) {
     int justPlayed = atoi(playedID);
 
 //    if (justPlayed != game->order[game->orderPos]) {
-//        fprintf(stderr, "%d broke %dvs%d\n", game->myID, justPlayed, game->orderPos);
 //        return show_player_message(MSGERR);
     if (justPlayed == (game->playerCount - 1)) {
-//        fprintf(stderr, "(%d) %d just played, reset to 0\n", game->myID, justPlayed);
         game->orderPos = 0;
         if (game->lastPlayer == justPlayed) {
             set_expected(game, "HAND");
@@ -374,13 +381,13 @@ int decode_played(char *input, PlayerGame *game) {
     }
     //todo is this an issue
     game->cardsPlayed = malloc(game->handSize * game->playerCount * 2 *
-                               sizeof(Card));
+            sizeof(Card));
 
     input += i;
     input += 1;
 
     if (validate_card(input[0]) && (isdigit(input[1]) ||
-                                    (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
+            (isalpha(input[1]) && isxdigit(input[1]) && islower(input[1])))) {
         newCard.suit = input[0];
         newCard.rank = input[1];
         save_card(game, &newCard);
@@ -447,6 +454,13 @@ int extract_last_player(char *input) {
     return atoi(dest);
 }
 
+/**
+ * Function to decide what the player will do based on input from hub.
+ * @param input - string from stdin.
+ * @param game struct representing player's tracking of game.
+ * @return 0 - no errors
+ *         6 - invalid message from the hub.
+ */
 int process_input(char *input, PlayerGame *game) {
     char *dest = malloc(sizeof(char) * strlen(input));
     if (strncmp(input, "HAND", 4) == 0) {
@@ -479,7 +493,6 @@ int process_input(char *input, PlayerGame *game) {
         dest[6] = 0;
         int msgCheck = check_expected(game, dest, game->playerMove);
         if (msgCheck != 0) {
-//            fprintf(stderr, "BRUH\n");
             return msgCheck;
         }
         int decode = decode_played(input, game);
@@ -504,7 +517,7 @@ int process_input(char *input, PlayerGame *game) {
 int cont_read_stdin(PlayerGame *game) {
     char input[LINESIZE];
     fgets(input, BUFSIZ, stdin);
-    while (strcmp(input, "GAMEOVER\n") != 0 && !feof(stdin)) { //fixme check \n?
+    while (strcmp(input, "GAMEOVER\n") != 0 && !feof(stdin)) {
 //        fprintf(stderr, "(%d) READ: %s", game->myID, input);
         int processed = process_input(input, game);
         if (processed != 0) {
@@ -646,11 +659,23 @@ int parse_player(int argc, char **argv, PlayerGame *game) {
 
 }
 
-
+/**
+ * Function to set the next expected msg from hub.
+ * @param game struct representing player's tracking of game.
+ * @param set string representing state.
+ */
 void set_expected(PlayerGame *game, char *set) {
     game->current = set;
 }
 
+/**
+ * Function to check the msg received from the hub to ensure correct ordering.
+ * @param game struct representing player's tracking of game.
+ * @param got string that the hub sent.
+ * @param currentPlayer integer representing the current player playing.
+ * @return 0 - no error
+ *         6 - invalid message from hub.
+ */
 int check_expected(PlayerGame *game, char *got, int currentPlayer) {
 //    fprintf(stderr, "state: %s got:%s\n", game->current, got);
     if (strcmp(game->current, "start") == 0) {
@@ -699,19 +724,19 @@ int check_expected(PlayerGame *game, char *got, int currentPlayer) {
     return DONE;
 }
 
-void malloc_card_storage(PlayerGame *game) {
-    for (int j = 0; j < game->playerCount; j++) {
-        game->cardsStored[j] = malloc(4 * sizeof(char));
-    }
-}
-
+/**
+ * Function to set up state handling along with initialisation of variables.
+ * @param game struct representing player's tracking of game.
+ */
 void init_expected(PlayerGame *game) {
     game->current = "start";
     game->round = 0;
     game->firstRound = 1;
     game->cardPos = 0;
     game->cardsStored = (char **) malloc(game->playerCount * sizeof(char *));
-    malloc_card_storage(game);
+    for (int j = 0; j < game->playerCount; j++) {
+        game->cardsStored[j] = malloc(4 * sizeof(char));
+    }
     game->order = malloc(sizeof(int) * (game->playerCount - 1));
     game->orderPos = 0;
     game->dPlayedRound = 0;
@@ -726,6 +751,3 @@ void init_expected(PlayerGame *game) {
     }
     game->largestPlayer = i;
 }
-
-/* end shared */
-

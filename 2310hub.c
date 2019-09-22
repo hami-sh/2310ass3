@@ -23,15 +23,15 @@ bool sighup = false;
  */
 Status show_message(Status s) {
     const char *messages[] = {"",
-                              "Usage: 2310hub deck threshold player0 {player1}\n",
-                              "Invalid threshold\n",
-                              "Deck error\n",
-                              "Not enough cards\n",
-                              "Player error\n",
-                              "Player EOF\n",
-                              "Invalid message\n",
-                              "Invalid card choice\n",
-                              "Ended due to signal\n"};
+            "Usage: 2310hub deck threshold player0 {player1}\n",
+            "Invalid threshold\n",
+            "Deck error\n",
+            "Not enough cards\n",
+            "Player error\n",
+            "Player EOF\n",
+            "Invalid message\n",
+            "Invalid card choice\n",
+            "Ended due to signal\n"};
     fputs(messages[s], stderr);
     return s;
 }
@@ -54,8 +54,6 @@ int create_players(Game *game, char **argv) {
         game->players[i].pipeOut = malloc(sizeof(int) * 2);
         pipe(game->players[i].pipeIn);
         pipe(game->players[i].pipeOut);
-//        printf(">>IN%d in:%d out:%d\n", i, game->players[i].pipeIn[0], game->players[i].pipeIn[1]);
-//        printf(">>OUT%d in:%d out:%d\n", i, game->players[i].pipeOut[0], game->players[i].pipeOut[1]);
         pid_t pid;
         if ((pid = fork()) < 0) {
             return show_message(PLAYERSTART);
@@ -63,8 +61,10 @@ int create_players(Game *game, char **argv) {
             // child
             close(game->players[i].pipeIn[1]); // for child - close write end.
             close(game->players[i].pipeOut[0]); // for child - close read end.
-            dup2(game->players[i].pipeIn[0], STDIN_FILENO); //send pipeA stuff to stdin of child.
-            dup2(game->players[i].pipeOut[1], STDOUT_FILENO); //send stdout child to write of pipeB
+            //send pipeA stuff to stdin of child.
+            dup2(game->players[i].pipeIn[0], STDIN_FILENO);
+            //send stdout child to write of pipeB
+            dup2(game->players[i].pipeOut[1], STDOUT_FILENO);
 
             //todo DEBUG REPLACE
             int dev = open("/dev/null", O_WRONLY);
@@ -73,10 +73,13 @@ int create_players(Game *game, char **argv) {
 
             char *args[6];
             args[0] = argv[i + 3];
-            args[1] = malloc((number_digits(game->playerCount) + 1) * sizeof(int));
+            args[1] = malloc((number_digits(game->playerCount) + 1)
+                    * sizeof(int));
             args[2] = malloc((number_digits(i) + 1) * sizeof(int));
-            args[3] = malloc((number_digits(game->threshold) + 1) * sizeof(int));
-            args[4] = malloc((number_digits(game->numCardsToDeal) + 1) * sizeof(int));
+            args[3] = malloc((number_digits(game->threshold) + 1)
+                    * sizeof(int));
+            args[4] = malloc((number_digits(game->numCardsToDeal) + 1)
+                    * sizeof(int));
             sprintf(args[1], "%d", game->playerCount);
             sprintf(args[2], "%d", i);
             sprintf(args[3], "%d", game->threshold);
@@ -178,7 +181,7 @@ int deal_card_to_player(Game *game, int id) {
     //HANDx,C1,C2,C3...,Cn
     int cardNo = game->numCardsToDeal;
     char *hand = malloc((4 + number_digits(cardNo) + cardNo + (cardNo * 2) + 2)
-                        * sizeof(char));
+            * sizeof(char));
     strcpy(hand, "HAND");
     char insertNumber[cardNo];
     sprintf(insertNumber, "%d", cardNo);
@@ -247,7 +250,6 @@ void calculate_scores(Game *game) {
     game->leadPlayer = winner;
     game->nScore[winner] += 1;
     game->dScore[winner] += dCardCount;
-//    printf("----(%d %d %d)----\n", winner, game->nScore[winner], game->dScore[winner]);
 
 
 }
@@ -264,14 +266,13 @@ int send_and_receive(Game *game) {
     int numberPlays = 0;
     while (go) {
         // get current player move
-//        printf("HUB READING: (%d)\n", playerMove);
-        const short buffSize = (short) log10(INT_MAX) + 3; // +2 to allow for \n\0
+        // +2 to allow for \n\0
+        const short buffSize = (short) log10(INT_MAX) + 3;
         char buffer[buffSize];
         if (!fgets(buffer, buffSize - 1, game->players[playerMove].fileOut)
-            || feof(game->players[playerMove].fileOut)
-            || ferror(game->players[playerMove].fileOut)) {
-            //fixme do something here
-            printf("bruh\n");
+                || feof(game->players[playerMove].fileOut)
+                || ferror(game->players[playerMove].fileOut)) {
+            return show_message(PLAYEREOF);
         }
 //        printf("%d: %s", playerMove, buffer);
         //todo validate move
@@ -284,12 +285,13 @@ int send_and_receive(Game *game) {
         playedCard.suit = buffer[4];
         playedCard.rank = buffer[5];
         game->cardsByRound[game->roundNumber][playerMove] = playedCard;
-        game->cardsByRoundOrderPlayed[game->roundNumber][numberPlays] = playedCard;
+        game->cardsOrderPlayed[game->roundNumber][numberPlays] = playedCard;
 
 
         // send move to other players
         char *playedMsg = malloc(7 + number_digits(playerMove) + 2);
-        sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4], buffer[5]);
+        sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4],
+                buffer[5]);
         for (int i = 0; i < game->playerCount; i++) {
             if (i != playerMove) {
                 fprintf(game->players[i].fileIn, playedMsg);
@@ -321,7 +323,7 @@ void end_round_output(Game *game) {
     printf("Lead player=%d\n", game->leadPlayer);
     printf("Cards=");
     for (int i = 0; i < game->playerCount; i++) {
-        Card playedCard = game->cardsByRoundOrderPlayed[game->roundNumber][i];
+        Card playedCard = game->cardsOrderPlayed[game->roundNumber][i];
         if (i < game->playerCount - 1) {
             printf("%c.%c ", playedCard.suit, playedCard.rank);
         } else {
@@ -603,13 +605,21 @@ int load_deck(FILE *input, Deck *deck) {
     }
 }
 
+/**
+ * Function to set up all malloc'd variables and state of the game.
+ * @param game struct representing player's tracking of game.
+ */
 void init_state(Game *game) {
     game->state = "start";
-    game->cardsByRound = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
-    game->cardsByRoundOrderPlayed = (Card **) malloc(sizeof(Card *) * game->numCardsToDeal);
+    game->cardsByRound = (Card **) malloc(sizeof(Card *)
+            * game->numCardsToDeal);
+    game->cardsOrderPlayed = (Card **) malloc(sizeof(Card *)
+            * game->numCardsToDeal);
     for (int i = 0; i < game->numCardsToDeal; i++) {
-        game->cardsByRoundOrderPlayed[i] = (Card *) malloc(sizeof(Card) * game->playerCount);
-        game->cardsByRound[i] = (Card *) malloc(sizeof(Card) * game->playerCount);
+        game->cardsOrderPlayed[i] = (Card *) malloc(sizeof(Card)
+                * game->playerCount);
+        game->cardsByRound[i] = (Card *) malloc(sizeof(Card)
+                * game->playerCount);
     }
 
     game->nScore = (int *) malloc(sizeof(int) * game->playerCount);
@@ -622,10 +632,26 @@ void init_state(Game *game) {
     }
 }
 
+/**
+ * Function to set the state of the game to the supplied string.
+ * @param game struct representing player's tracking of game.
+ * @param state string representing the state.
+ */
 void set_state(Game *game, char *state) {
     game->state = state;
 }
 
+/**
+ * Function to handle the retrival of the current game state.
+ * @param game struct representing player's tracking of game.
+ * @return -1 if no state
+ *         0 if start of game
+ *         1 if hand to be delivered
+ *         2 if newround
+ *         3 if currently playing the game
+ *         4 if end of round
+ *         5 if end of game.
+ */
 int get_state(Game *game) {
     if (strcmp(game->state, "start") == 0) {
         return START;
@@ -643,6 +669,16 @@ int get_state(Game *game) {
     return -1;
 }
 
+/**
+ * Function to progress the game to the next state.
+ * @param game struct representing player's tracking of game.
+ * @return 0 if start of game
+ *         1 if hand to be delivered
+ *         2 if newround
+ *         3 if currently playing the game
+ *         4 if end of round
+ *         5 if end of game.
+ */
 int next_state(Game *game) {
     if (strcmp(game->state, "start") == 0) {
         // start of game
@@ -673,6 +709,11 @@ int next_state(Game *game) {
     return DONE;
 }
 
+/**
+ * Function to handle removal of card from the deck
+ * @param game struct representing player's tracking of game.
+ * @param card struct representing the card to remove.
+ */
 void remove_deck_card(Game *game, Card *card) {
     int pos = 0;
     for (int i = 0; i < game->deck.count; i++) {
@@ -691,10 +732,30 @@ void remove_deck_card(Game *game, Card *card) {
     game->deck.used += 1;
 }
 
+/**
+ * Function called via SIGHUP signal (through sigaction) to signal the signal's
+ * arrival.
+ * @param s - integer representing the signal received.
+ */
 void handle_sighup(int s) {
     sighup = true;
 }
 
+/**
+ * Function acting as entry point for the program.
+ * @param argc - number of arguments received at command line
+ * @param argv - array of strings representing arguments received.
+ * @return 0 - normal exit
+ *         1 - less than 4 command line args
+ *         2 - threshold <2 or not a number
+ *         3 - problem reading / parsing the deck
+ *         4 - less than P cards in the deck
+ *         5 - Unable to start one of the players
+ *         6 - Unexpected EOF from a player
+ *         7 - invalid message from a player
+ *         8 - player chooses a card they do not have.
+ *         9 - received SIGHUP
+ */
 int main(int argc, char **argv) {
     // 2310hub deck threshold player0 player 1...
     if (argc >= 5) {
