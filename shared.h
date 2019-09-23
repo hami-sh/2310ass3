@@ -11,7 +11,8 @@ typedef struct {
     char rank;
     char suit;
 } Card;
-// enum for exit status
+
+// enum for exit status of player
 typedef enum {
     DONE = 0,
     ARGERR = 1,
@@ -22,7 +23,6 @@ typedef enum {
     MSGERR = 6,
     EOFERR = 7
 } PlayerStatus;
-
 
 // struct for deck
 typedef struct {
@@ -47,6 +47,7 @@ typedef struct {
     Card card;
 } Play;
 
+// struct for player's record of the game.
 typedef struct {
     Card hand[60];
     int handSize;
@@ -77,6 +78,8 @@ typedef struct {
     int lastPlayer;
 
 } PlayerGame;
+
+void play_card(PlayerGame *game, Card *play);
 
 void save_card(PlayerGame *game, Card *card);
 
@@ -111,8 +114,6 @@ int decode_hand(char *input, PlayerGame *game);
 int decode_newround(char *input, PlayerGame *game);
 
 int decode_played(char *input, PlayerGame *game);
-
-int gameover(char *input);
 
 int extract_last_player(char *input);
 

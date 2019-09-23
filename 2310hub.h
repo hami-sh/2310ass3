@@ -35,6 +35,7 @@ typedef struct {
     int *playerHandSizes;
 } Game;
 
+/* enum for hub exit status */
 typedef enum {
     OK = 0,
     LESS4ARGS = 1,
@@ -48,6 +49,7 @@ typedef enum {
     GOTSIGHUP = 9
 } Status;
 
+/* enum for state machine */
 typedef enum {
     START = 0,
     HAND = 1,
@@ -61,8 +63,6 @@ int handler_deck(char *deckName, Game *game);
 
 int load_deck(FILE *input, Deck *deck);
 
-int player_arg_checker(int argc, char **argv, Game *game);
-
 void handle_sighup(int s);
 
 int game_loop(Game *game);
@@ -72,8 +72,6 @@ Status show_message(Status s);
 int parse(int argc, char **argv, Game *game);
 
 void init_state(Game *game);
-
-void set_state(Game *game, char *state);
 
 int get_state(Game *game);
 

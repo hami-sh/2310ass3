@@ -97,7 +97,6 @@ int create_players(Game *game, char **argv) {
             dup2(game->players[i].pipeIn[0], STDIN_FILENO);
             //send stdout child to write of pipeB
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO);
-
             int dir = open("/dev/null", O_WRONLY);
             dup2(dir, 2); // supress stderr of child
 
@@ -107,7 +106,6 @@ int create_players(Game *game, char **argv) {
             execv(argv[i + 3], args);
             // if failed, return and show player start error.
             return show_message(PLAYERSTART);
-
         } else {
             // parent
             game->pidChildren[i] = pid;
@@ -383,7 +381,6 @@ int send_and_receive(Game *game) {
     bool go = true;
     int numberPlays = 0;
     while (go) {
-        // get current player move
         const short bufferSize = (short) log10(INT_MAX) + 3;
         char buffer[bufferSize];
         // attempt to read from fgets
@@ -392,13 +389,11 @@ int send_and_receive(Game *game) {
                 || ferror(game->players[playerMove].fileOut)) {
             return show_message(PLAYEREOF);
         }
-
         // check player message
         int validation = validate_play(game, buffer, playerMove);
         if (validation != 0) {
             return validation;
         }
-
         if (playerMove == game->leadPlayer) {
             game->leadSuit = buffer[4];
         }
@@ -408,7 +403,6 @@ int send_and_receive(Game *game) {
         playedCard.rank = buffer[5];
         game->cardsByRound[game->roundNumber][playerMove] = playedCard;
         game->cardsOrderPlayed[game->roundNumber][numberPlays] = playedCard;
-
         // send move to other players
         char *playedMsg = malloc(7 + number_digits(playerMove) + 2);
         sprintf(playedMsg, "%s%d,%c%c\n", "PLAYED", playerMove, buffer[4],
