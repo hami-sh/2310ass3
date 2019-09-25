@@ -471,6 +471,31 @@ void end_game_output(Game *game) {
         }
     }
     printf("\n");
+
+    // send gameover to players
+    for (int i = 0; i < game->playerCount; i++) {
+        fprintf(game->players[i].fileIn, "GAMEOVER\n");
+        fflush(game->players[i].fileIn);
+    }
+
+    // kill children processes
+    end_process(game);
+}
+
+/**
+ * Function to end the children processes.
+ * @param game struct representing hub's tracking of game.
+ */
+void end_process(Game *game) {
+    // kill children processes
+    for (int i = 0; i < game->playerCount; i++) {
+        fclose(game->players[i].fileOut);
+        fclose(game->players[i].fileIn);
+        close(game->players[i].pipeIn[1]);
+        close(game->players[i].pipeOut[0]);
+        kill(game->pidChildren[i], SIGKILL); //kill children
+        wait(NULL); //reap zombies
+    }
 }
 
 /**
@@ -519,16 +544,9 @@ int game_loop(Game *game) {
             return OK; // exit with normal status.
         }
     }
-    // kill children processes
-    for (int i = 0; i < game->playerCount; i++) {
-        fclose(game->players[i].fileOut);
-        fclose(game->players[i].fileIn);
-        close(game->players[i].pipeIn[1]);
-        close(game->players[i].pipeOut[0]);
-        kill(game->pidChildren[i], SIGKILL); //kill children
-        wait(NULL); //reap zombies
-    }
-    return GOTSIGHUP;
+    // kill the children processes.
+    end_process(game);
+    return show_message(GOTSIGHUP);
 }
 
 /**

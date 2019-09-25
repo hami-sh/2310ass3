@@ -12,12 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d33790e2-6c45-48e8-aeed-631455ec034b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/2310alice.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310alice.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2310bob.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310bob.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.c" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/2310hub.h" beforeDir="false" afterPath="$PROJECT_DIR$/2310hub.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared.c" beforeDir="false" afterPath="$PROJECT_DIR$/shared.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared.h" beforeDir="false" afterPath="$PROJECT_DIR$/shared.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -44,17 +41,59 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/shared.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="731">
+              <caret line="312" column="17" selection-start-line="312" selection-start-column="17" selection-end-line="312" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fakePlayer.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="462">
+              <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/2310hub.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="37">
+              <caret line="87" column="18" lean-forward="true" selection-start-line="87" selection-start-column="18" selection-end-line="87" selection-end-column="18" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/2310hub.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="267">
+              <caret line="48" column="4" selection-start-line="48" selection-start-column="4" selection-end-line="48" selection-end-column="4" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>nSCor</find>
-      <find>nScore</find>
-      <find>play</find>
-      <find>next_state</find>
-      <find>err</find>
-      <find>validate</find>
-      <find>player</find>
       <find>player's</find>
       <find>EOF</find>
       <find>feof</find>
@@ -78,6 +117,13 @@
       <find>check</find>
       <find>decode_new</find>
       <find>fprint</find>
+      <find>HAND</find>
+      <find>fileIn</find>
+      <find>kill</find>
+      <find>end_process</find>
+      <find>strlen</find>
+      <find>GAMEOVER</find>
+      <find>sighup</find>
     </findStrings>
     <replaceStrings>
       <replace>hub's</replace>
@@ -105,12 +151,13 @@
         <option value="$PROJECT_DIR$/2310alice.h" />
         <option value="$PROJECT_DIR$/Makefile" />
         <option value="$PROJECT_DIR$/todo" />
-        <option value="$PROJECT_DIR$/2310hub.h" />
         <option value="$PROJECT_DIR$/shared.h" />
         <option value="$PROJECT_DIR$/2310alice.c" />
         <option value="$PROJECT_DIR$/2310bob.c" />
-        <option value="$PROJECT_DIR$/2310hub.c" />
         <option value="$PROJECT_DIR$/shared.c" />
+        <option value="$PROJECT_DIR$/2310hub.h" />
+        <option value="$PROJECT_DIR$/fakePlayer.c" />
+        <option value="$PROJECT_DIR$/2310hub.c" />
       </list>
     </option>
   </component>
@@ -280,11 +327,12 @@
       <workItem from="1569150838378" duration="33000" />
       <workItem from="1569205036203" duration="1017000" />
       <workItem from="1569215502378" duration="5487000" />
+      <workItem from="1569385546751" duration="2373000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="134775000" />
+    <option name="totallyTimeSpent" value="137148000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -297,9 +345,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="939" y="37" width="1500" height="941" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5323911" visible="true" weight="0.22085048" />
-      <window_info id="Structure" order="1" sideWeight="0.46760896" side_tool="true" visible="true" weight="0.22085048" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.53121316" visible="true" weight="0.22359397" />
+      <window_info id="Structure" order="1" sideWeight="0.4687868" side_tool="true" visible="true" weight="0.22359397" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297062" />
@@ -308,7 +357,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3281075" />
-      <window_info anchor="bottom" id="File Transfer" order="7" weight="0.15445544" />
+      <window_info anchor="bottom" id="File Transfer" order="7" weight="0.15429917" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" />
@@ -318,7 +367,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Remote Host" order="3" weight="0.32618025" />
+      <window_info anchor="right" id="Remote Host" order="3" weight="0.32578877" />
       <window_info anchor="right" id="make" order="4" weight="0.3297568" />
       <window_info anchor="right" id="Database" order="5" weight="0.3297568" />
     </layout>
@@ -469,16 +518,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/2310hub.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="614">
-          <caret line="51" column="26" selection-start-line="51" selection-start-column="26" selection-end-line="51" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/shared.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="294">
@@ -493,16 +532,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/2310alice.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="654">
-          <caret line="151" column="31" selection-start-line="151" selection-start-column="31" selection-end-line="151" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/2310bob.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="584">
@@ -513,10 +542,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/2310hub.c">
+    <entry file="file://$PROJECT_DIR$/2310alice.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="65">
-          <caret line="404" column="76" selection-start-line="404" selection-start-column="76" selection-end-line="404" selection-end-column="76" />
+        <state relative-caret-position="654">
+          <caret line="151" column="31" selection-start-line="151" selection-start-column="31" selection-end-line="151" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fakePlayer.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="462">
+          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -525,8 +564,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/shared.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="373">
-          <caret line="272" column="29" lean-forward="true" selection-start-line="272" selection-start-column="29" selection-end-line="272" selection-end-column="29" />
+        <state relative-caret-position="731">
+          <caret line="312" column="17" selection-start-line="312" selection-start-column="17" selection-end-line="312" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/2310hub.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="48" column="4" selection-start-line="48" selection-start-column="4" selection-end-line="48" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/2310hub.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="37">
+          <caret line="87" column="18" lean-forward="true" selection-start-line="87" selection-start-column="18" selection-end-line="87" selection-end-column="18" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

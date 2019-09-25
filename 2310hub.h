@@ -59,6 +59,8 @@ typedef enum {
     ENDGAME = 5,
 } State;
 
+void end_process(Game *game);
+
 int handler_deck(char *deckName, Game *game);
 
 int load_deck(FILE *input, Deck *deck);

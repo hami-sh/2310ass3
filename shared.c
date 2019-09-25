@@ -190,6 +190,8 @@ int check_repeating_cards(Card arr[], int size) {
  */
 int decode_hand(char *input, PlayerGame *game) {
     input += 4;
+    char *oldInput = malloc(sizeof(char) * strlen(input));
+    strcpy(oldInput, input);
     input[strlen(input) - 1] = '\0'; // remove extra new line char.
     char delim[] = ",";
     char *arrow = strtok(input, delim);
@@ -236,6 +238,11 @@ int decode_hand(char *input, PlayerGame *game) {
     int repeatStatus = check_repeating_cards(game->hand, game->handSize);
     if (repeatStatus != 0) {
         return repeatStatus;
+    }
+    // check msg not extra long
+    if (strlen(oldInput) != number_digits(game->handSize)
+        + 3*game->handSize + 1) {
+        return show_player_message(MSGERR);
     }
     return DONE;
 }
@@ -400,8 +407,10 @@ int misc_played_checking(PlayerGame *game, char *input, Card *newCard,
  *         6 - error in message
  */
 int decode_played(char *input, PlayerGame *game) {
-    Card newCard;
     input += 6;
+    char *oldInput = malloc(sizeof(char) * strlen(input));
+    strcpy(oldInput, input);
+    Card newCard;
     input[strlen(input) - 1] = '\0';
     int i = 0;
     // get player ID
@@ -414,6 +423,11 @@ int decode_played(char *input, PlayerGame *game) {
     char *playedID = malloc(i * sizeof(char));
     strncpy(playedID, input, i);
     int justPlayed = atoi(playedID);
+
+    // check msg length.
+    if (strlen(oldInput) != number_digits(justPlayed) + 4) {
+        return show_player_message(MSGERR);
+    }
 
     // set next msg expected based on player ID
     if (justPlayed == (game->playerCount - 1)) {
