@@ -110,11 +110,6 @@ int alice_strategy(PlayerGame *game) {
     //default move
     alice_default_move(game);
 
-    // print end of round output if we are the last player
-    if (game->myID == game->playerCount - 1) {
-        player_end_of_round_output(game);
-    }
-
     return DONE;
 }
 

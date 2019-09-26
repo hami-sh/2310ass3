@@ -3,9 +3,6 @@
 #ifndef SHARED_H
 #define SHARED_H
 
-char validate_card(char c);
-
-
 // struct for card
 typedef struct {
     char rank;
@@ -79,6 +76,8 @@ typedef struct {
 
 } PlayerGame;
 
+char validate_card(char c);
+
 void play_card(PlayerGame *game, Card *play);
 
 void save_card(PlayerGame *game, Card *card);
@@ -106,8 +105,6 @@ void remove_card(PlayerGame *game, Card *card);
 void alice_default_move(PlayerGame *game);
 
 PlayerStatus show_player_message(PlayerStatus s);
-
-int check_repeating_cards(Card arr[], int size);
 
 int decode_hand(char *input, PlayerGame *game);
 

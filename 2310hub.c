@@ -13,8 +13,21 @@
 #include "2310hub.h"
 #include <limits.h>
 
-// global variable for SIGHUP signal.
-bool sighup = false;
+// global struct for SIGHUP signal.
+SighupVars sighupStruct;
+
+
+/**
+ * Function called via SIGHUP signal (through sigaction) to signal the signal's
+ * arrival.
+ * @param s - integer representing the signal received.
+ */
+void handle_sighup(int s) {
+    sighupStruct.sighup = true;
+    end_process(sighupStruct.pidChildren, sighupStruct.players,
+            sighupStruct.playerCount);
+    exit(show_message(GOTSIGHUP));
+}
 
 /**
  * Function to output an error message and return status.
@@ -66,6 +79,28 @@ void arg_creator(Game *game, char **argv, char **args, int i) {
 }
 
 /**
+ * Function to setup variables for players of the game.
+ * @param game struct representing hub's tracking of game.
+ */
+void allocate_player_memory(Game *game) {
+    // allocate memory to all values that will be used.
+    game->pidChildren = malloc(game->playerCount * sizeof(int));
+    game->players = malloc(game->playerCount * sizeof(Player));
+    game->numCardsToDeal = floor((game->deck.count / game->playerCount));
+}
+
+/**
+ * Function to close players when exiting.
+ * @param game struct representing hub's tracking of game.
+ */
+void close_players(Game *game) {
+    for (int i = 0; i < game->playerCount; i++) {
+        fprintf(game->players[i].fileIn, "GAMEOVER\n");
+        fflush(game->players[i].fileIn);
+    }
+}
+
+/**
  * Function to perform forking of players
  * @param game struct representing hub's tracking of game.
  * @param argv arguments from command line.
@@ -73,10 +108,7 @@ void arg_creator(Game *game, char **argv, char **args, int i) {
  *         5 - error starting the players
  */
 int create_players(Game *game, char **argv) {
-    // allocate memory to all values that will be used.
-    game->pidChildren = malloc(game->playerCount * sizeof(int));
-    game->players = malloc(game->playerCount * sizeof(Player));
-    game->numCardsToDeal = floor((game->deck.count / game->playerCount));
+    allocate_player_memory(game);
 
     // fork current process and exec child to give player processes.
     for (int i = 0; i < game->playerCount; i++) {
@@ -87,8 +119,7 @@ int create_players(Game *game, char **argv) {
         pipe(game->players[i].pipeOut);
         pid_t pid;
         if ((pid = fork()) < 0) {
-            // pipe failed.
-            return show_message(PLAYERSTART);
+            return show_message(PLAYERSTART); // pipe failed.
         } else if (pid == 0) {
             // child
             close(game->players[i].pipeIn[1]); // for child - close write end.
@@ -99,7 +130,6 @@ int create_players(Game *game, char **argv) {
             dup2(game->players[i].pipeOut[1], STDOUT_FILENO);
             int dir = open("/dev/null", O_WRONLY);
             dup2(dir, 2); // supress stderr of child
-
             char *args[6];
             // create args and exec
             arg_creator(game, argv, args, i);
@@ -110,8 +140,7 @@ int create_players(Game *game, char **argv) {
             // parent
             game->pidChildren[i] = pid;
             game->players[i].size = game->numCardsToDeal;
-            // close proper pipes
-            close(game->players[i].pipeIn[0]);
+            close(game->players[i].pipeIn[0]); //close unnecessary pipes
             close(game->players[i].pipeOut[1]);
         }
     }
@@ -121,6 +150,10 @@ int create_players(Game *game, char **argv) {
         game->players[i].fileIn = fdopen(game->players[i].pipeIn[1], "w");
         game->players[i].fileOut = fdopen(game->players[i].pipeOut[0], "r");
     }
+    // store children for signal removal.
+    sighupStruct.pidChildren = game->pidChildren;
+    sighupStruct.players = game->players;
+    sighupStruct.playerCount = game->playerCount;
     return OK;
 }
 
@@ -344,9 +377,11 @@ int check_card_in_hand(Game *game, Card *card, int player) {
  */
 int validate_play(Game *game, char *message, int player) {
     if (strncmp(message, "PLAY", 4) != 0) {
+        close_players(game);
         return show_message(PLAYERMSG);
     }
-    if (strlen(message) > 7) {
+    if (strlen(message) != 7) {
+        close_players(game);
         return show_message(PLAYERMSG);
     }
 
@@ -358,6 +393,7 @@ int validate_play(Game *game, char *message, int player) {
         newCard.suit = message[4];
         newCard.rank = message[5];
     } else {
+        close_players(game);
         return show_message(PLAYERMSG);
     }
 
@@ -479,21 +515,21 @@ void end_game_output(Game *game) {
     }
 
     // kill children processes
-    end_process(game);
+    end_process(game->pidChildren, game->players, game->playerCount);
 }
 
 /**
  * Function to end the children processes.
  * @param game struct representing hub's tracking of game.
  */
-void end_process(Game *game) {
+void end_process(pid_t *children, Player *players, int childrenCount) {
     // kill children processes
-    for (int i = 0; i < game->playerCount; i++) {
-        fclose(game->players[i].fileOut);
-        fclose(game->players[i].fileIn);
-        close(game->players[i].pipeIn[1]);
-        close(game->players[i].pipeOut[0]);
-        kill(game->pidChildren[i], SIGKILL); //kill children
+    for (int i = 0; i < childrenCount; i++) {
+        fclose(players[i].fileOut);
+        fclose(players[i].fileIn);
+        close(players[i].pipeIn[1]);
+        close(players[i].pipeOut[0]);
+        kill(children[i], SIGKILL); //kill children
         wait(NULL); //reap zombies
     }
 }
@@ -508,7 +544,7 @@ void end_process(Game *game) {
  */
 int game_loop(Game *game) {
     // continue until we get sighup or we return.
-    while (!sighup) {
+    while (!sighupStruct.sighup) {
         struct timespec nap;
         nap.tv_sec = 0;
         nap.tv_nsec = 5000000000;
@@ -545,7 +581,7 @@ int game_loop(Game *game) {
         }
     }
     // kill the children processes.
-    end_process(game);
+    end_process(game->pidChildren, game->players, game->playerCount);
     return show_message(GOTSIGHUP);
 }
 
@@ -728,12 +764,6 @@ int load_deck(FILE *input, Deck *deck) {
  * @param game struct representing player's tracking of game.
  */
 void init_state(Game *game) {
-    // setup SIGHUP detection
-    struct sigaction saSighup;
-    saSighup.sa_handler = handle_sighup;
-    saSighup.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &saSighup, 0);
-
     // initialise all variables needed for storage & state checking.
     game->state = "start";
     game->cardsByRound = (Card **) malloc(sizeof(Card *)
@@ -856,15 +886,6 @@ void remove_deck_card(Game *game, Card *card) {
 }
 
 /**
- * Function called via SIGHUP signal (through sigaction) to signal the signal's
- * arrival.
- * @param s - integer representing the signal received.
- */
-void handle_sighup(int s) {
-    sighup = true;
-}
-
-/**
  * Function acting as entry point for the program.
  * @param argc - number of arguments received at command line
  * @param argv - array of strings representing arguments received.
@@ -882,6 +903,11 @@ void handle_sighup(int s) {
 int main(int argc, char **argv) {
     // start the game if we have correct number of args.
     if (argc >= 5) {
+        // setup SIGHUP detection
+        struct sigaction saSighup;
+        saSighup.sa_handler = handle_sighup;
+        saSighup.sa_flags = SA_RESTART;
+        sigaction(SIGHUP, &saSighup, 0);
         return new_game(argc, argv);
     } else {
         return show_message(LESS4ARGS);

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #ifndef HUB_H
 #define HUB_H
@@ -35,6 +36,14 @@ typedef struct {
     int *playerHandSizes;
 } Game;
 
+// global struct for SIGHUP signal.
+typedef struct {
+    bool sighup;
+    pid_t *pidChildren;
+    Player *players;
+    int playerCount;
+} SighupVars;
+
 /* enum for hub exit status */
 typedef enum {
     OK = 0,
@@ -59,7 +68,7 @@ typedef enum {
     ENDGAME = 5,
 } State;
 
-void end_process(Game *game);
+void end_process(pid_t *children, Player *players, int childrenCount);
 
 int handler_deck(char *deckName, Game *game);
 

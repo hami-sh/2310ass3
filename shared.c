@@ -160,27 +160,6 @@ PlayerStatus show_player_message(PlayerStatus s) {
 }
 
 /**
- * Function to check repeating cards in an array.
- * @param arr - Card array to check
- * @param size - size of the array
- * @return 0 - no repeats
- *         6 - repeats
- */
-int check_repeating_cards(Card arr[], int size) {
-    // loop over all cards to determine if any match.
-    for (int i = 0; i < size; i++) {
-        for (int j = i + 1; j < size; j++) {
-            if (arr[i].rank == arr[j].rank) {
-                if (arr[i].suit == arr[j].suit) {
-                    return show_player_message(MSGERR);
-                }
-            }
-        }
-    }
-    return DONE;
-}
-
-/**
  * Function to decode the hand message from stdin.
  * @param input - string representing message
  * @param game struct representing player's tracking of game.
@@ -195,7 +174,6 @@ int decode_hand(char *input, PlayerGame *game) {
     input[strlen(input) - 1] = '\0'; // remove extra new line char.
     char delim[] = ",";
     char *arrow = strtok(input, delim);
-
     int i = 0;
     // split string on ','
     while (arrow != NULL) {
@@ -229,19 +207,13 @@ int decode_hand(char *input, PlayerGame *game) {
         arrow = strtok(NULL, delim);
         i++;
     }
-
     // if card count not equal to hand size, throw
     if (i - 1 != game->handSize) {
         return show_player_message(MSGERR);
     }
-    // check for repeating cards
-    int repeatStatus = check_repeating_cards(game->hand, game->handSize);
-    if (repeatStatus != 0) {
-        return repeatStatus;
-    }
     // check msg not extra long
     if (strlen(oldInput) != number_digits(game->handSize)
-        + 3*game->handSize + 1) {
+            + 3 * game->handSize + 1) {
         return show_player_message(MSGERR);
     }
     return DONE;
@@ -394,6 +366,9 @@ int misc_played_checking(PlayerGame *game, char *input, Card *newCard,
     // if it is our turn to play, make a move!
     if (game->orderPos == game->myID) {
         game->playerStrategy(game);
+        if (game->myID == game->lastPlayer) {
+            player_end_of_round_output(game);
+        }
         next_player(game);
     }
     return DONE;
