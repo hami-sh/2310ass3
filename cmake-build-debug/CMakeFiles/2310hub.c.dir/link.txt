@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/cc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/2310hub.c.dir/2310alice.c.o CMakeFiles/2310hub.c.dir/2310bob.c.o  -o 2310hub.c 

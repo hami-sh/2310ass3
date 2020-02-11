@@ -1,8 +1,0 @@
-PLAYER 0
-    get hand
-    {
-    get newround
-    play card
-    get what other player played * x
-    }
-    get gameover
